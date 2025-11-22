@@ -1,65 +1,108 @@
-import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+import ProductCard from "../components/ProductCard"; // We use the card you just built
+
+// --- MOCK DATA (This will be replaced by MongoDB later) ---
+const DROPS = [
+  {
+    id: 1,
+    brand: "Nike",
+    name: "Air Jordan 1 'Lost & Found'",
+    price: 180,
+    image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1000&auto=format&fit=crop",
+    soldOut: false,
+  },
+  {
+    id: 2,
+    brand: "Adidas",
+    name: "Yeezy Boost 350 V2 'Bone'",
+    price: 230,
+    image: "https://images.unsplash.com/photo-1584735174965-48c48d7edfde?q=80&w=1000&auto=format&fit=crop",
+    soldOut: false,
+  },
+  {
+    id: 3,
+    brand: "New Balance",
+    name: "550 'White Grey'",
+    price: 110,
+    image: "https://images.unsplash.com/photo-1539185441755-54339cf0e193?q=80&w=1000&auto=format&fit=crop",
+    soldOut: true,
+  },
+  {
+    id: 4,
+    brand: "Nike",
+    name: "Dunk Low 'Panda'",
+    price: 110,
+    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1000&auto=format&fit=crop",
+    soldOut: false,
+  }
+];
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <main className="animate-fade-in">
+      
+      {/* 1. HERO SECTION */}
+      <section className="relative h-[85vh] w-full bg-black overflow-hidden">
+        {/* Background Image */}
+        <div className="absolute inset-0 opacity-70">
+          <img 
+            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2000&auto=format&fit=crop" 
+            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-[2s]"
+            alt="Hero"
+          />
+        </div>
+        
+        {/* Text Overlay */}
+        <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full max-w-4xl">
+          <div className="overflow-hidden">
+            <p className="text-electric-blue font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in">
+              New Collection 2025
+            </p>
+          </div>
+          <h1 className="font-oswald text-6xl md:text-9xl font-bold text-white leading-[0.9] mb-8 italic">
+            RUN THE <br/> STREETS.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <button className="bg-white text-black px-8 py-4 rounded-full font-bold flex items-center gap-2 hover:bg-electric-blue hover:text-white transition-colors shadow-lg">
+            Shop The Drop <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
+      </section>
+
+      {/* 2. THE LATEST DROPS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div className="flex justify-between items-end mb-12">
+          <div>
+            <h2 className="font-oswald text-4xl md:text-5xl font-bold uppercase mb-2">Just Dropped</h2>
+            <p className="text-concrete">The latest heat, verified authentic.</p>
+          </div>
+          <a href="/shop" className="hidden md:block font-bold border-b-2 border-black pb-1 hover:text-electric-blue hover:border-electric-blue transition">
+            View All
           </a>
         </div>
-      </main>
-    </div>
+
+        {/* Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
+          {DROPS.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+        
+        <div className="mt-12 text-center md:hidden">
+           <button className="border border-black px-6 py-3 rounded-full font-bold uppercase text-sm">View All Drops</button>
+        </div>
+      </section>
+
+      {/* 3. BRAND TICKER (Simple) */}
+      <section className="border-t border-b border-neutral-100 py-12 mb-20">
+         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 overflow-x-auto gap-12 scrollbar-hide">
+            <span className="text-2xl font-oswald font-bold shrink-0">NIKE</span>
+            <span className="text-2xl font-oswald font-bold shrink-0">ADIDAS</span>
+            <span className="text-2xl font-oswald font-bold shrink-0">NEW BALANCE</span>
+            <span className="text-2xl font-oswald font-bold shrink-0">YEEZY</span>
+            <span className="text-2xl font-oswald font-bold shrink-0">JORDAN</span>
+         </div>
+      </section>
+
+    </main>
   );
 }

@@ -1,36 +1,99 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+BUBASNEAKERS.
 
-## Getting Started
+Run The Streets.
+A premium, mobile-first e-commerce experience for sneaker enthusiasts.
 
-First, run the development server:
+🚀 About The Project
 
-```bash
+BUBASNEAKERS is a "Street-Luxe" e-commerce platform designed to bridge the gap between high-fashion aesthetics and functional retail. Unlike standard templates, this project features a custom-built UI/UX focused on product discovery and conversion.
+
+Currently in Phase 1 (MVP), the application handles the full customer journey from the Landing Page to Checkout using client-side logic and persistent state management.
+
+✨ Key Features
+
+Street-Luxe UI System: A custom design system using Oswald (Headings) and Inter (Body) fonts with a monochrome + Electric Blue palette.
+
+Smart Cart Logic: * Handles composite keys (Same product, different sizes are treated as unique items).
+
+Persists data via localStorage so users don't lose their cart on refresh.
+
+Real-time total calculation and quantity management.
+
+Dynamic Product Pages: One template (/product/[slug]) handles all SKU variations with sticky details and responsive image galleries.
+
+Distraction-Free Checkout: A dedicated route that removes global navigation to increase conversion focus.
+
+Advanced Filtering: Shop page with Sidebar (Desktop) and Slide-over Drawer (Mobile) filtering logic.
+
+🛠️ Tech Stack
+
+Framework: Next.js 14 (App Router)
+
+Styling: Tailwind CSS (Utility-first)
+
+Icons: Lucide React
+
+State Management: React Context API (CartContext)
+
+Deployment: Vercel
+
+📂 Project Structure
+
+bubasneakers/
+├── app/
+│   ├── checkout/      # Distraction-free payment page
+│   ├── product/       # Dynamic product details ([slug])
+│   ├── shop/          # Collection page with filters
+│   ├── layout.js      # Global font & context wrappers
+│   └── page.js        # Homepage (Hero & Drops)
+├── components/
+│   ├── CartDrawer.jsx # Slide-out shopping cart
+│   ├── Navbar.jsx     # Responsive navigation
+│   └── ProductCard.jsx# Reusable product component
+├── context/
+│   └── CartContext.js # Global state (Add/Remove/Update logic)
+└── public/            # Static assets
+
+
+⚡ Getting Started
+
+Clone the repository and install dependencies to run the storefront locally.
+
+# 1. Clone the repo
+git clone [https://github.com/YOUR_USERNAME/bubasneakers.git](https://github.com/YOUR_USERNAME/bubasneakers.git)
+
+# 2. Enter the directory
+cd bubasneakers
+
+# 3. Install dependencies
+npm install
+
+# 4. Run the development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Open http://localhost:3000 with your browser to see the result.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+🗺️ Roadmap
 
-## Learn More
+This project is being developed using Agile methodology.
 
-To learn more about Next.js, take a look at the following resources:
+[x] Phase 1: Storefront MVP (Home, Shop, Product, Cart, Checkout UI)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+[ ] Phase 2: Backend Integration (MongoDB Atlas Connection, Mongoose Schemas)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+[ ] Phase 3: Authentication (NextAuth.js for User Accounts)
 
-## Deploy on Vercel
+[ ] Phase 4: Payments (Stripe & M-Pesa API Integration)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+[ ] Phase 5: Admin Dashboard (CMS for managing drops)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+🤝 Contributing
+
+Contributions are welcome! Please check the Issues tab to see what is currently being worked on.
+
+📄 License
+
+Distributed under the MIT License. See LICENSE for more information.
+
+Built by [Your Name]
