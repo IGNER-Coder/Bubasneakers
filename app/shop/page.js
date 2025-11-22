@@ -1,51 +1,61 @@
-"use client";
-
-import { useState, useMemo } from "react";
 import { SlidersHorizontal, ChevronDown, X } from "lucide-react";
 import ProductCard from "../../components/ProductCard";
+import connectToDatabase from "../../lib/db";
+import Product from "../../models/Product";
+import Link from "next/link";
 
-// --- EXTENDED MOCK DATA ---
-const ALL_PRODUCTS = [
-  { id: 1, brand: "Nike", name: "Air Jordan 1 'Lost & Found'", price: 180, gender: "men", category: "lifestyle", image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1000" },
-  { id: 2, brand: "Adidas", name: "Yeezy Boost 350 V2 'Bone'", price: 230, gender: "men", category: "lifestyle", image: "https://images.unsplash.com/photo-1584735174965-48c48d7edfde?q=80&w=1000" },
-  { id: 3, brand: "New Balance", name: "550 'White Grey'", price: 110, gender: "women", category: "lifestyle", image: "https://images.unsplash.com/photo-1539185441755-54339cf0e193?q=80&w=1000" },
-  { id: 4, brand: "Nike", name: "Dunk Low 'Panda'", price: 110, gender: "men", category: "skate", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1000" },
-  { id: 5, brand: "Nike", name: "Air Max 90", price: 130, gender: "women", category: "running", image: "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1000" },
-  { id: 6, brand: "Adidas", name: "Samba OG", price: 100, gender: "men", category: "lifestyle", image: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=1000" },
-  { id: 7, brand: "Vans", name: "Old Skool", price: 75, gender: "kids", category: "skate", image: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=1000" },
-  { id: 8, brand: "New Balance", name: "9060 'Rain Cloud'", price: 150, gender: "men", category: "lifestyle", image: "https://images.unsplash.com/photo-1623609163859-ca93c959b98a?q=80&w=1000" },
-];
+// --- 1. SERVER SIDE DATA FETCHING ---
+async function getProducts(resolvedSearchParams) {
+  await connectToDatabase();
 
-export default function ShopPage({ searchParams }) {
-  // Filters State
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [activeBrand, setActiveBrand] = useState("All");
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [sortOrder, setSortOrder] = useState("newest"); // 'newest', 'price-asc', 'price-desc'
+  const filter = {};
+  const sort = {};
 
-  // --- FILTER LOGIC ---
-  const filteredProducts = useMemo(() => {
-    let result = [...ALL_PRODUCTS];
+  // A. Filter Logic (Using the awaited params)
+  if (resolvedSearchParams.brand && resolvedSearchParams.brand !== "All") {
+    filter.brand = resolvedSearchParams.brand;
+  }
+  
+  // Handle "gender" or "category" query params
+  if (resolvedSearchParams.gender) {
+    filter.gender = { $regex: new RegExp(resolvedSearchParams.gender, "i") }; // Case insensitive
+  }
+  
+  if (resolvedSearchParams.tag) {
+    // Mapping simple tags to DB fields
+    if (resolvedSearchParams.tag === "new") filter.isFeatured = true;
+    else if (resolvedSearchParams.tag === "sale") filter.price = { $lt: 150 }; // Mock sale logic
+    else filter.category = { $regex: new RegExp(resolvedSearchParams.tag, "i") };
+  }
 
-    // 1. Filter by Brand
-    if (activeBrand !== "All") {
-      result = result.filter(p => p.brand === activeBrand);
-    }
+  // B. Sorting Logic
+  if (resolvedSearchParams.sort === "price-asc") {
+    sort.price = 1; // Low to High
+  } else if (resolvedSearchParams.sort === "price-desc") {
+    sort.price = -1; // High to Low
+  } else {
+    sort.createdAt = -1; // Newest first (Default)
+  }
 
-    // 2. Filter by Category
-    if (activeCategory !== "All") {
-      result = result.filter(p => p.category === activeCategory);
-    }
+  // C. The Query
+  const products = await Product.find(filter).sort(sort).lean();
 
-    // 3. Sort
-    if (sortOrder === "price-asc") {
-      result.sort((a, b) => a.price - b.price);
-    } else if (sortOrder === "price-desc") {
-      result.sort((a, b) => b.price - a.price);
-    }
+  // D. Serialization (Convert _id to string for React)
+  return products.map(p => ({
+    ...p,
+    id: p._id.toString(),
+    _id: p._id.toString()
+  }));
+}
 
-    return result;
-  }, [activeBrand, activeCategory, sortOrder]);
+export default async function ShopPage({ searchParams }) {
+  // ⚠️ CRITICAL FIX: Await the searchParams promise for Next.js 15+
+  const resolvedSearchParams = await searchParams;
+  const products = await getProducts(resolvedSearchParams);
+  
+  // Helper to create filter links
+  const activeBrand = resolvedSearchParams.brand || "All";
+  const activeSort = resolvedSearchParams.sort || "newest";
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -55,32 +65,26 @@ export default function ShopPage({ searchParams }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           
           <div className="flex items-center gap-4">
-            <h1 className="font-oswald text-xl font-bold uppercase">Shop All</h1>
+            <h1 className="font-oswald text-xl font-bold uppercase">
+              {resolvedSearchParams.gender ? `${resolvedSearchParams.gender}'s Collection` : "Shop All"}
+            </h1>
             <span className="text-xs text-concrete font-bold bg-neutral-100 px-2 py-1 rounded-full">
-              {filteredProducts.length} Items
+              {products.length} Items
             </span>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Sort Dropdown */}
+            {/* Sort Dropdown (Simple CSS Hover) */}
             <div className="relative group hidden md:block">
               <button className="flex items-center gap-2 text-sm font-bold hover:text-electric-blue">
                 Sort By <ChevronDown className="w-4 h-4" />
               </button>
               <div className="absolute right-0 top-full mt-2 w-40 bg-white border border-neutral-100 shadow-xl rounded-lg p-2 hidden group-hover:block">
-                <button onClick={() => setSortOrder("newest")} className="block w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 rounded-md">Newest</button>
-                <button onClick={() => setSortOrder("price-asc")} className="block w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 rounded-md">Price: Low-High</button>
-                <button onClick={() => setSortOrder("price-desc")} className="block w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 rounded-md">Price: High-Low</button>
+                <Link href={{ query: { ...resolvedSearchParams, sort: 'newest' } }} className="block w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 rounded-md">Newest</Link>
+                <Link href={{ query: { ...resolvedSearchParams, sort: 'price-asc' } }} className="block w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 rounded-md">Price: Low-High</Link>
+                <Link href={{ query: { ...resolvedSearchParams, sort: 'price-desc' } }} className="block w-full text-left px-3 py-2 text-sm hover:bg-neutral-50 rounded-md">Price: High-Low</Link>
               </div>
             </div>
-
-            {/* Mobile Filter Toggle */}
-            <button 
-              onClick={() => setMobileFiltersOpen(true)}
-              className="md:hidden p-2 hover:bg-neutral-100 rounded-full"
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-            </button>
           </div>
         </div>
       </div>
@@ -94,37 +98,36 @@ export default function ShopPage({ searchParams }) {
             <div>
               <h3 className="font-bold mb-4 text-sm uppercase tracking-wider">Brands</h3>
               <div className="space-y-2">
-                {["All", "Nike", "Adidas", "New Balance", "Vans"].map(brand => (
-                  <label key={brand} className="flex items-center gap-3 cursor-pointer group">
-                    <div className={`w-4 h-4 border rounded-sm flex items-center justify-center ${activeBrand === brand ? 'bg-black border-black' : 'border-neutral-300'}`}>
-                      {activeBrand === brand && <div className="w-2 h-2 bg-white rounded-full" />}
-                    </div>
-                    <input 
-                      type="radio" 
-                      name="brand" 
-                      className="hidden" 
-                      onChange={() => setActiveBrand(brand)}
-                    />
-                    <span className={`text-sm ${activeBrand === brand ? 'font-bold' : 'text-concrete group-hover:text-black'}`}>
-                      {brand}
-                    </span>
-                  </label>
-                ))}
+                {["All", "Nike", "Adidas", "New Balance"].map(brand => {
+                  const isActive = activeBrand === brand;
+                  const query = { ...resolvedSearchParams, brand: brand === "All" ? undefined : brand };
+                  
+                  return (
+                    <Link key={brand} href={{ query }} className="flex items-center gap-3 cursor-pointer group">
+                      <div className={`w-4 h-4 border rounded-sm flex items-center justify-center ${isActive ? 'bg-black border-black' : 'border-neutral-300'}`}>
+                        {isActive && <div className="w-2 h-2 bg-white rounded-full" />}
+                      </div>
+                      <span className={`text-sm ${isActive ? 'font-bold' : 'text-concrete group-hover:text-black'}`}>
+                        {brand}
+                      </span>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Category Filter */}
+            {/* Categories */}
             <div>
               <h3 className="font-bold mb-4 text-sm uppercase tracking-wider">Category</h3>
-              <div className="space-y-2">
+              <div className="space-y-2 flex flex-col items-start">
                 {["All", "Lifestyle", "Running", "Skate", "Basketball"].map(cat => (
-                  <button 
+                  <Link 
                     key={cat}
-                    onClick={() => setActiveCategory(cat.toLowerCase())}
-                    className={`block text-sm text-left w-full py-1 hover:text-electric-blue transition-colors ${activeCategory === cat.toLowerCase() ? 'font-bold text-black underline' : 'text-concrete'}`}
+                    href={{ query: { ...resolvedSearchParams, tag: cat === "All" ? undefined : cat } }}
+                    className="text-sm text-concrete hover:text-electric-blue transition-colors"
                   >
                     {cat}
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -132,64 +135,37 @@ export default function ShopPage({ searchParams }) {
 
           {/* 3. PRODUCT GRID */}
           <div className="flex-1">
-            {filteredProducts.length > 0 ? (
+            {products.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
-                {filteredProducts.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                {products.map(product => (
+                  <ProductCard 
+                    key={product.id} 
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      brand: product.brand,
+                      price: product.price,
+                      image: product.images[0],
+                      soldOut: false
+                    }} 
+                  />
                 ))}
               </div>
             ) : (
               <div className="py-20 text-center">
-                <p className="text-xl text-concrete">No sneakers found.</p>
-                <button 
-                  onClick={() => {setActiveBrand("All"); setActiveCategory("All");}}
-                  className="mt-4 text-electric-blue font-bold hover:underline"
+                <p className="text-xl text-concrete">No sneakers found matching your filters.</p>
+                <Link 
+                  href="/shop"
+                  className="mt-4 inline-block text-electric-blue font-bold hover:underline"
                 >
-                  Clear Filters
-                </button>
+                  Clear All Filters
+                </Link>
               </div>
             )}
           </div>
 
         </div>
       </div>
-
-      {/* 4. MOBILE FILTER DRAWER */}
-      {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end md:hidden">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileFiltersOpen(false)} />
-          <div className="relative w-3/4 bg-white h-full shadow-2xl p-6 animate-fade-in">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="font-oswald text-xl font-bold">Filters</h2>
-              <button onClick={() => setMobileFiltersOpen(false)}><X /></button>
-            </div>
-            
-            {/* Mobile Brand Options */}
-            <div className="mb-8">
-              <h3 className="font-bold mb-4">Brand</h3>
-              <div className="flex flex-wrap gap-2">
-                {["All", "Nike", "Adidas", "New Balance"].map(brand => (
-                  <button
-                    key={brand}
-                    onClick={() => setActiveBrand(brand)}
-                    className={`px-4 py-2 rounded-full text-sm border ${activeBrand === brand ? 'bg-black text-white border-black' : 'border-neutral-200'}`}
-                  >
-                    {brand}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button 
-              onClick={() => setMobileFiltersOpen(false)}
-              className="w-full bg-black text-white py-4 rounded-full font-bold uppercase"
-            >
-              View {filteredProducts.length} Items
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

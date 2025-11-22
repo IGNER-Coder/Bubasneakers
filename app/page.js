@@ -1,47 +1,36 @@
 import { ArrowRight } from "lucide-react";
-import ProductCard from "../components/ProductCard"; 
+import ProductCard from "../components/ProductCard";
+import connectToDatabase from "../lib/db";
+import Product from "../models/Product";
 
-// --- MOCK DATA ---
-const DROPS = [
-  {
-    id: 1,
-    brand: "Nike",
-    name: "Air Jordan 1 'Lost & Found'",
-    price: 180,
-    image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1000&auto=format&fit=crop",
-    soldOut: false,
-  },
-  {
-    id: 2,
-    brand: "Adidas",
-    name: "Yeezy Boost 350 V2 'Bone'",
-    price: 230,
-    image: "https://images.unsplash.com/photo-1584735174965-48c48d7edfde?q=80&w=1000&auto=format&fit=crop",
-    soldOut: false,
-  },
-  {
-    id: 3,
-    brand: "New Balance",
-    name: "550 'White Grey'",
-    price: 110,
-    image: "https://images.unsplash.com/photo-1539185441755-54339cf0e193?q=80&w=1000&auto=format&fit=crop",
-    soldOut: true,
-  },
-  {
-    id: 4,
-    brand: "Nike",
-    name: "Dunk Low 'Panda'",
-    price: 110,
-    image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1000&auto=format&fit=crop",
-    soldOut: false,
+// --- FETCH DATA ---
+async function getProducts() {
+  try {
+    await connectToDatabase();
+    // Fetch 4 featured products
+    const products = await Product.find({ isFeatured: true }).limit(4).lean();
+    
+    return products.map(p => ({
+      id: p._id.toString(),
+      name: p.name,
+      brand: p.brand,
+      price: p.price,
+      image: p.images && p.images.length > 0 ? p.images[0] : '', // Safety check
+      soldOut: false
+    }));
+  } catch (error) {
+    console.error("Failed to fetch products:", error);
+    return [];
   }
-];
+}
 
-export default function Home() {
+export default async function Home() {
+  const products = await getProducts();
+
   return (
     <main className="animate-fade-in">
       
-      {/* 1. HERO SECTION (Centered on Mobile) */}
+      {/* 1. HERO SECTION */}
       <section className="relative h-[85vh] w-full bg-black overflow-hidden">
         <div className="absolute inset-0 opacity-70">
           <img 
@@ -51,14 +40,12 @@ export default function Home() {
           />
         </div>
         
-        {/* Overlay: Centered on Mobile, Bottom-Left on Desktop */}
+        {/* Content: Centered on Mobile, Left on Desktop */}
         <div className="absolute inset-0 p-8 md:p-16 w-full flex flex-col justify-center items-center text-center md:justify-end md:items-start md:text-left">
           <div className="max-w-4xl">
-            <div className="overflow-hidden">
-              <p className="text-electric-blue font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in">
-                New Collection 2025
-              </p>
-            </div>
+            <p className="text-electric-blue font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in">
+              New Collection 2025
+            </p>
             <h1 className="font-oswald text-6xl md:text-9xl font-bold text-white leading-[0.9] mb-8 italic">
               RUN THE <br/> STREETS.
             </h1>
@@ -81,11 +68,15 @@ export default function Home() {
           </a>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-          {DROPS.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        {/* GRID FIX: Ensure consistent gap and column sizing */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          {products.length > 0 ? (
+            products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))
+          ) : (
+            <p className="text-concrete col-span-4 text-center py-10">Loading Drops from Cloud...</p>
+          )}
         </div>
         
         <div className="mt-12 text-center md:hidden">

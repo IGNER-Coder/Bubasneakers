@@ -7,8 +7,9 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false); // 🔒 Safety Lock
 
-  // Load from LocalStorage on start (Client-side only)
+  // 1. LOAD CART (Run once on mount)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedCart = localStorage.getItem("buba_cart");
@@ -19,27 +20,31 @@ export function CartProvider({ children }) {
           console.error("Failed to parse cart", e);
         }
       }
+      setIsInitialized(true); // 🔓 Unlock saving
     }
   }, []);
 
-  // Save to LocalStorage on change
+  // 2. SAVE CART (Run only after initialization)
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (isInitialized && typeof window !== "undefined") {
       localStorage.setItem("buba_cart", JSON.stringify(cart));
     }
-  }, [cart]);
+  }, [cart, isInitialized]);
+
+  // --- HELPER: ID CHECKER ---
+  // Ensures we match items even if one ID is a string "1" and the other is number 1
+  const isSameItem = (item, productId, size) => {
+    return String(item.id) === String(productId) && String(item.size) === String(size);
+  };
 
   // --- CORE LOGIC ---
-  
   const addToCart = (product, size, quantity) => {
     setCart((prevCart) => {
-      // Check if item exists (Composite Key: ID + Size)
-      const existingIndex = prevCart.findIndex(
-        (item) => item.id === product.id && item.size === size
+      const existingIndex = prevCart.findIndex((item) => 
+        isSameItem(item, product.id, size)
       );
 
       if (existingIndex > -1) {
-        // Clone and update quantity
         const newCart = [...prevCart];
         newCart[existingIndex] = {
           ...newCart[existingIndex],
@@ -47,21 +52,21 @@ export function CartProvider({ children }) {
         };
         return newCart;
       } else {
-        // Add new item
-        return [...prevCart, { ...product, size, quantity }];
+        // Ensure we save the ID as a string to prevent future mismatch
+        return [...prevCart, { ...product, id: String(product.id), size, quantity }];
       }
     });
     setIsCartOpen(true);
   };
 
   const removeFromCart = (productId, size) => {
-    setCart((prev) => prev.filter((item) => !(item.id === productId && item.size === size)));
+    setCart((prev) => prev.filter((item) => !isSameItem(item, productId, size)));
   };
 
   const updateQuantity = (productId, size, delta) => {
     setCart((prev) =>
       prev.map((item) => {
-        if (item.id === productId && item.size === size) {
+        if (isSameItem(item, productId, size)) {
           const newQuantity = Math.max(1, item.quantity + delta);
           return { ...item, quantity: newQuantity };
         }
