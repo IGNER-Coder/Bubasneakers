@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
-import ProductCard from "../components/ProductCard"; // We use the card you just built
+import ProductCard from "../components/ProductCard"; 
 
-// --- MOCK DATA (This will be replaced by MongoDB later) ---
+// --- MOCK DATA ---
 const DROPS = [
   {
     id: 1,
@@ -41,9 +41,8 @@ export default function Home() {
   return (
     <main className="animate-fade-in">
       
-      {/* 1. HERO SECTION */}
+      {/* 1. HERO SECTION (Centered on Mobile) */}
       <section className="relative h-[85vh] w-full bg-black overflow-hidden">
-        {/* Background Image */}
         <div className="absolute inset-0 opacity-70">
           <img 
             src="https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=2000&auto=format&fit=crop" 
@@ -52,19 +51,21 @@ export default function Home() {
           />
         </div>
         
-        {/* Text Overlay */}
-        <div className="absolute bottom-0 left-0 p-8 md:p-16 w-full max-w-4xl">
-          <div className="overflow-hidden">
-            <p className="text-electric-blue font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in">
-              New Collection 2025
-            </p>
+        {/* Overlay: Centered on Mobile, Bottom-Left on Desktop */}
+        <div className="absolute inset-0 p-8 md:p-16 w-full flex flex-col justify-center items-center text-center md:justify-end md:items-start md:text-left">
+          <div className="max-w-4xl">
+            <div className="overflow-hidden">
+              <p className="text-electric-blue font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in">
+                New Collection 2025
+              </p>
+            </div>
+            <h1 className="font-oswald text-6xl md:text-9xl font-bold text-white leading-[0.9] mb-8 italic">
+              RUN THE <br/> STREETS.
+            </h1>
+            <button className="bg-white text-black px-8 py-4 rounded-full font-bold flex items-center gap-2 hover:bg-electric-blue hover:text-white transition-colors shadow-lg mx-auto md:mx-0">
+              Shop The Drop <ArrowRight className="w-5 h-5" />
+            </button>
           </div>
-          <h1 className="font-oswald text-6xl md:text-9xl font-bold text-white leading-[0.9] mb-8 italic">
-            RUN THE <br/> STREETS.
-          </h1>
-          <button className="bg-white text-black px-8 py-4 rounded-full font-bold flex items-center gap-2 hover:bg-electric-blue hover:text-white transition-colors shadow-lg">
-            Shop The Drop <ArrowRight className="w-5 h-5" />
-          </button>
         </div>
       </section>
 
@@ -92,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. BRAND TICKER (Simple) */}
+      {/* 3. BRAND TICKER */}
       <section className="border-t border-b border-neutral-100 py-12 mb-20">
          <div className="max-w-7xl mx-auto px-4 flex justify-between items-center opacity-40 grayscale hover:grayscale-0 transition-all duration-500 overflow-x-auto gap-12 scrollbar-hide">
             <span className="text-2xl font-oswald font-bold shrink-0">NIKE</span>

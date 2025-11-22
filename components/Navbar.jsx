@@ -3,18 +3,8 @@
 import { useState, useEffect } from "react";
 import { ShoppingBag, Search, Menu, X } from "lucide-react";
 import { useCart } from "../context/CartContext";
-
-// ----------------------------------------------------------------------
-// ⚠️ FOR VERCEL DEPLOYMENT:
-// 1. Uncomment the two lines below:
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-//
-// 2. Delete the "MOCK COMPONENTS" section below.
-// ----------------------------------------------------------------------
-
-// --- MOCK COMPONENTS (Keep for Preview, Delete for Vercel) ---
-
+import Link from "next/link"; 
+import { usePathname } from "next/navigation"; 
 
 export default function Navbar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -35,12 +25,12 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             
-            {/* 1. LOGO & BRAND */}
+            {/* 1. LOGO & BRAND (Resized for Mobile) */}
             <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-10 h-10 bg-black rounded-tr-xl rounded-bl-xl flex items-center justify-center transform group-hover:rotate-3 transition-transform duration-300">
-                <span className="font-oswald text-white font-bold text-xl italic">B</span>
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-black rounded-tr-xl rounded-bl-xl flex items-center justify-center transform group-hover:rotate-3 transition-transform duration-300">
+                <span className="font-oswald text-white font-bold text-lg md:text-xl italic">B</span>
               </div>
-              <span className="font-oswald text-2xl font-bold tracking-tighter italic">
+              <span className="font-oswald text-lg md:text-2xl font-bold tracking-tighter italic truncate">
                 BUBA<span className="text-electric-blue">SNEAKERS.</span>
               </span>
             </Link>
@@ -55,12 +45,11 @@ export default function Navbar() {
             </div>
 
             {/* 3. ICONS */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <button className="p-2 hover:bg-neutral-100 rounded-full transition">
                 <Search className="w-5 h-5 text-black" />
               </button>
               
-              {/* Cart Toggle Button */}
               <button onClick={toggleCart} className="relative p-2 hover:bg-neutral-100 rounded-full transition group">
                 <ShoppingBag className="w-5 h-5 text-black group-hover:scale-110 transition-transform" />
                 {count > 0 && (
@@ -70,27 +59,26 @@ export default function Navbar() {
                 )}
               </button>
 
-              {/* Mobile Menu Button */}
               <button 
                 className="md:hidden p-2"
                 onClick={() => setIsMobileOpen(!isMobileOpen)}
               >
-                {isMobileOpen ? <X /> : <Menu />}
+                {isMobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
             </div>
           </div>
         </div>
       </nav>
 
-      {/* 4. MOBILE MENU */}
+      {/* 4. MOBILE MENU (Fixed Position Fix) */}
       {isMobileOpen && (
-        <div className="md:hidden bg-white border-b border-neutral-100 absolute w-full z-40 animate-fade-in">
-          <div className="px-4 pt-2 pb-6 space-y-2 font-oswald text-xl uppercase">
-            <Link href="/shop?tag=new" className="block px-3 py-2 hover:bg-neutral-50 rounded-md">New Drops</Link>
-            <Link href="/shop?gender=men" className="block px-3 py-2 hover:bg-neutral-50 rounded-md">Men</Link>
-            <Link href="/shop?gender=women" className="block px-3 py-2 hover:bg-neutral-50 rounded-md">Women</Link>
-            <Link href="/shop?tag=kids" className="block px-3 py-2 hover:bg-neutral-50 rounded-md">Kids</Link>
-            <Link href="/shop?tag=sale" className="block px-3 py-2 text-electric-blue font-bold">Sale</Link>
+        <div className="fixed inset-0 top-20 z-40 bg-white/95 backdrop-blur-xl border-t border-neutral-100 animate-fade-in overflow-y-auto">
+          <div className="px-6 py-8 space-y-6 font-oswald text-2xl uppercase tracking-wide">
+            <Link href="/shop?tag=new" onClick={() => setIsMobileOpen(false)} className="block hover:text-electric-blue transition-colors">New Drops</Link>
+            <Link href="/shop?gender=men" onClick={() => setIsMobileOpen(false)} className="block hover:text-electric-blue transition-colors">Men</Link>
+            <Link href="/shop?gender=women" onClick={() => setIsMobileOpen(false)} className="block hover:text-electric-blue transition-colors">Women</Link>
+            <Link href="/shop?tag=kids" onClick={() => setIsMobileOpen(false)} className="block hover:text-electric-blue transition-colors">Kids</Link>
+            <Link href="/shop?tag=sale" onClick={() => setIsMobileOpen(false)} className="block text-electric-blue font-bold">Sale</Link>
           </div>
         </div>
       )}

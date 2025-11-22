@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link"; // Use real Next.js Link
+import Link from "next/link";
 import { Star, Heart, Minus, Plus, ChevronLeft, Truck, ShieldCheck } from "lucide-react";
-import { useCart } from "../../../context/CartContext"; // Import useCart
+import { useCart } from "../../../context/CartContext";
 
 // --- MOCK DATA FETCHER ---
 const PRODUCT = {
@@ -14,9 +14,9 @@ const PRODUCT = {
   price: 180,
   description: "The Air Jordan 1 Retro High OG 'Lost & Found' brings back the famous 'Chicago' colorway with a new storytelling angle. It features a vintage look with cracked leather and a pre-yellowed midsole, mimicking the look of an original 1985 pair found deep in stockroom inventory.",
   images: [
-    "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1000&auto=format&fit=crop", // Side
-    "https://images.unsplash.com/photo-1612724185246-83679d722238?q=80&w=1000&auto=format&fit=crop", // Top/Angle
-    "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1000&auto=format&fit=crop", // Detail
+    "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=1000&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1612724185246-83679d722238?q=80&w=1000&auto=format&fit=crop", 
+    "https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1000&auto=format&fit=crop", 
   ],
   sizes: [7, 7.5, 8, 8.5, 9, 9.5, 10, 10.5, 11, 12, 13],
   rating: 4.9,
@@ -24,17 +24,17 @@ const PRODUCT = {
 };
 
 export default function ProductPage({ params }) {
+  const { addToCart } = useCart();
   const [selectedSize, setSelectedSize] = useState(null);
   const [mainImage, setMainImage] = useState(PRODUCT.images[0]);
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart(); // Use the addToCart function from CartContext
 
   const handleAddToCart = () => {
     if (!selectedSize) {
       alert("Please select a size first!"); 
       return;
     }
-    addToCart(PRODUCT, selectedSize, quantity); // Use the real addToCart function
+    addToCart(PRODUCT, selectedSize, quantity);
   };
 
   return (
@@ -42,7 +42,6 @@ export default function ProductPage({ params }) {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* 1. BREADCRUMBS */}
         <Link href="/" className="inline-flex items-center text-concrete hover:text-black mb-8 transition-colors text-sm font-bold uppercase tracking-wider group">
           <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" />
           Back to Drops
@@ -51,9 +50,9 @@ export default function ProductPage({ params }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
           
           {/* 2. LEFT COLUMN: IMAGE GALLERY */}
-          <div className="lg:col-span-7 flex flex-col-reverse lg:flex-row gap-6">
+          <div className="lg:col-span-7 flex flex-col-reverse lg:flex-row gap-4 lg:gap-6">
             
-            {/* Thumbnails (Vertical Strip on Desktop) */}
+            {/* Thumbnails */}
             <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide lg:w-20 flex-shrink-0">
               {PRODUCT.images.map((img, idx) => (
                 <button 
@@ -68,12 +67,13 @@ export default function ProductPage({ params }) {
               ))}
             </div>
             
-            {/* Main Image */}
+            {/* Main Image (Fixed Aspect Ratio) */}
             <div className="flex-1 relative group cursor-zoom-in">
-               <div className="relative w-full h-[50vh] lg:h-[75vh] flex items-start justify-center">
+               {/* Added aspect-[4/5] for mobile vertical constraint */}
+               <div className="relative w-full aspect-[4/5] lg:aspect-auto h-full lg:h-[75vh] flex items-start justify-center">
                  <img 
                    src={mainImage} 
-                   className="w-full h-full object-contain object-top group-hover:scale-105 transition-transform duration-700 ease-in-out" 
+                   className="w-full h-full object-contain object-center lg:object-top group-hover:scale-105 transition-transform duration-700 ease-in-out" 
                    alt="Main Product" 
                  />
                </div>
@@ -86,7 +86,6 @@ export default function ProductPage({ params }) {
           {/* 3. RIGHT COLUMN: PRODUCT INFO */}
           <div className="lg:col-span-5 sticky top-24 h-fit flex flex-col pl-0 lg:pl-8">
             
-            {/* Header */}
             <div className="mb-6">
                <div className="flex items-center justify-between mb-2">
                  <span className="text-concrete font-bold tracking-widest uppercase text-xs">{PRODUCT.brand}</span>
@@ -99,7 +98,6 @@ export default function ProductPage({ params }) {
                <p className="text-xl text-concrete font-medium">{PRODUCT.color}</p>
             </div>
 
-            {/* Price */}
             <div className="text-3xl font-bold mb-8 font-sans border-b border-neutral-100 pb-8">
               ${PRODUCT.price}
             </div>
@@ -133,23 +131,29 @@ export default function ProductPage({ params }) {
               )}
             </div>
 
-            {/* Actions */}
             <div className="space-y-4 mb-8">
-               <button 
-                 disabled={!selectedSize}
-                 onClick={handleAddToCart}
-                 className={`w-full py-4 rounded-full font-bold text-lg uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 ${
-                   selectedSize 
-                    ? 'bg-black text-white hover:bg-electric-blue hover:scale-[1.02] active:scale-95' 
-                    : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
-                 }`}
-               >
-                 {selectedSize ? 'Add To Bag' : 'Select Size'}
-               </button>
+               <div className="flex gap-4">
+                 <div className="flex items-center bg-neutral-100 rounded-full px-4 gap-4 border border-neutral-200">
+                    <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="hover:text-electric-blue"><Minus className="w-4 h-4" /></button>
+                    <span className="font-bold w-4 text-center">{quantity}</span>
+                    <button onClick={() => setQuantity(quantity + 1)} className="hover:text-electric-blue"><Plus className="w-4 h-4" /></button>
+                 </div>
+
+                 <button 
+                   disabled={!selectedSize}
+                   onClick={handleAddToCart}
+                   className={`flex-1 py-4 rounded-full font-bold text-lg uppercase tracking-widest transition-all shadow-xl flex items-center justify-center gap-3 ${
+                     selectedSize 
+                      ? 'bg-black text-white hover:bg-electric-blue hover:scale-[1.02] active:scale-95' 
+                      : 'bg-neutral-200 text-neutral-400 cursor-not-allowed'
+                   }`}
+                 >
+                   {selectedSize ? 'Add To Bag' : 'Select Size'}
+                 </button>
+               </div>
                <p className="text-center text-xs text-concrete">Free shipping on orders over $200.</p>
             </div>
 
-            {/* Trust Badges (Re-added) */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="flex items-center gap-3 p-4 bg-neutral-50 rounded-xl border border-neutral-100">
                 <Truck className="w-6 h-6 text-concrete" />
@@ -167,7 +171,6 @@ export default function ProductPage({ params }) {
               </div>
             </div>
 
-            {/* Description */}
             <div className="pt-8 border-t border-neutral-100">
               <h3 className="font-oswald text-lg font-bold mb-3 uppercase">About The Shoe</h3>
               <p className="text-concrete leading-relaxed text-sm">
