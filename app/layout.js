@@ -1,8 +1,6 @@
 import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
-import Navbar from '../components/Navbar'; // Import the Navbar component
-import { CartProvider } from "../context/CartContext"; // Import CartProvider
-import CartDrawer from "../components/CartDrawer"; // Import CartDrawer
+import Providers from "./providers"; // Import the Providers wrapper component
 
 // 1. Configure Body Font
 const inter = Inter({ 
@@ -27,13 +25,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.variable} ${oswald.variable} antialiased`}>
-        <CartProvider>
-          <Navbar /> {/* Render the Navbar component here */}
-          <div className="min-h-screen flex flex-col">
-            {children}
-          </div>
-          <CartDrawer /> {/* Render the CartDrawer component here */}
-        </CartProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

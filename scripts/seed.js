@@ -1,32 +1,46 @@
 const mongoose = require("mongoose");
 const path = require("path");
-// Explicitly look for .env.local in the root folder
 require("dotenv").config({ path: path.resolve(__dirname, "../.env.local") });
+
+// --- PASTE YOUR USER ID HERE ---
+const ADMIN_USER_ID = "692465c39885b5056765a019"; // ⬅️ I've used a mock ID here, ensure you use your real one!
+// -------------------------------
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
   console.error("❌ Error: MONGODB_URI is missing.");
-  console.error("1. Check if '.env.local' exists in the root folder.");
   process.exit(1);
 }
 
-// Define the Schema locally
+// --- DEFINE PRODUCT SCHEMA LOCALLY (FIXED) ---
 const productSchema = new mongoose.Schema({
   name: String,
   brand: String,
   price: Number,
   description: String,
   images: [String],
-  category: String, // "Lifestyle", "Running", "Basketball", "Skate"
-  gender: String,   // "Men", "Women", "Kids"
+  category: String, 
+  gender: String,   
   sizes: [{ size: Number, stock: Number }],
   isFeatured: Boolean,
 });
-
 const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 
-// --- EXPANDED SAMPLE DATA ---
+
+// --- DEFINE ORDER SCHEMA LOCALLY ---
+const orderSchema = new mongoose.Schema({
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    items: [{ productId: mongoose.Schema.Types.ObjectId, name: String, size: Number, quantity: Number, priceAtPurchase: Number, image: String }],
+    shippingAddress: { name: String, address: String, city: String, postalCode: String, phone: String },
+    totalAmount: Number,
+    status: { type: String, enum: ['Processing', 'Paid', 'Shipped', 'Delivered', 'Cancelled'], default: 'Processing' },
+    trackingNumber: String,
+}, { timestamps: true });
+const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
+
+
+// --- EXPANDED SAMPLE DATA --- 
 const products = [
   // --- MEN ---
   {
@@ -145,6 +159,51 @@ const products = [
   }
 ];
 
+// --- SAMPLE ORDER DATA ---
+const orders = [
+    {
+        userId: ADMIN_USER_ID,
+        items: [
+            {
+                // Note: The object ID here is just a placeholder, real code would find the Product ID
+                name: "Air Jordan 1 'Lost & Found'",
+                size: 10,
+                quantity: 1,
+                priceAtPurchase: 180,
+                image: "https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?q=80&w=100",
+            },
+        ],
+        shippingAddress: { name: "Buba Developer", address: "123 Dev Street", city: "Nairobi", postalCode: "00100", phone: "0712345678" },
+        totalAmount: 180,
+        status: "Shipped",
+        trackingNumber: "BUBA-SHIP-12345"
+    },
+    {
+        userId: ADMIN_USER_ID,
+        items: [
+            {
+                name: "Yeezy Boost 350 V2 'Bone'",
+                size: 9,
+                quantity: 2,
+                priceAtPurchase: 230,
+                image: "https://images.unsplash.com/photo-1584735174965-48c48d7edfde?q=80&w=100",
+            },
+            {
+                name: "Dunk Low 'Panda'",
+                size: 10,
+                quantity: 1,
+                priceAtPurchase: 110,
+                image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=100",
+            },
+        ],
+        shippingAddress: { name: "Buba Developer", address: "123 Dev Street", city: "Nairobi", postalCode: "00100", phone: "0712345678" },
+        totalAmount: 570,
+        status: "Delivered",
+        trackingNumber: "BUBA-DEL-67890"
+    }
+];
+
+
 async function seed() {
   try {
     console.log("Connecting to MongoDB...");
@@ -153,9 +212,13 @@ async function seed() {
 
     console.log("Cleaning old data...");
     await Product.deleteMany({}); 
+    await Order.deleteMany({ userId: ADMIN_USER_ID }); 
 
-    console.log("🌱 Planting new seeds...");
+    console.log("🌱 Planting new product seeds...");
     await Product.insertMany(products);
+    
+    console.log("📦 Creating sample orders...");
+    await Order.insertMany(orders);
 
     console.log("🎉 Database Populated Successfully!");
     process.exit();

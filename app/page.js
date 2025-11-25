@@ -41,12 +41,12 @@ export default async function Home() {
         </div>
         
         {/* Content: Centered on Mobile, Left on Desktop */}
-        <div className="absolute inset-0 p-8 md:p-16 w-full flex flex-col justify-center items-center text-center md:justify-end md:items-start md:text-left">
+        <div className="absolute inset-0 p-8 md:p-16 w-full flex flex-col justify-center md:justify-end items-center text-center md:items-start md:text-left">
           <div className="max-w-4xl">
             <p className="text-electric-blue font-bold tracking-[0.2em] uppercase mb-4 animate-fade-in">
               New Collection 2025
             </p>
-            <h1 className="font-oswald text-6xl md:text-9xl font-bold text-white leading-[0.9] mb-8 italic">
+            <h1 className="font-oswald text-5xl sm:text-6xl md:text-9xl font-bold text-white leading-[0.9] mb-8 italic">
               RUN THE <br/> STREETS.
             </h1>
             <button className="bg-white text-black px-8 py-4 rounded-full font-bold flex items-center gap-2 hover:bg-electric-blue hover:text-white transition-colors shadow-lg mx-auto md:mx-0">
