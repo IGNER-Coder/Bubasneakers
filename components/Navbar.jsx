@@ -170,7 +170,6 @@ const SearchModal = ({ isOpen, onClose }) => {
       return;
     }
     setLoading(true);
-    setLoading(true);
     try {
       const response = await fetch(`/api/products/search?q=${query}`);
       if (!response.ok) {
