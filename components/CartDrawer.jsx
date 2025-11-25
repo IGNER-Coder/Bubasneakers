@@ -10,9 +10,7 @@ import Link from "next/link";
 // 2. Delete the "MOCK LINK" section below.
 // ----------------------------------------------------------------------
 
-// --- MOCK LINK (Keep for Preview, Delete for Vercel) ---
 
-// -------------------------------------------------------
 
 export default function CartDrawer() {
   const { cart, isCartOpen, toggleCart, removeFromCart, updateQuantity, getTotalPrice, getTotalItems } = useCart();

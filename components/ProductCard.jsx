@@ -2,18 +2,7 @@
 
 import { Plus } from "lucide-react";
 
-// ----------------------------------------------------------------------
-// ⚠️ FOR VERCEL DEPLOYMENT:
-// 1. Uncomment the line below:
-// import Link from "next/link";
-// 2. Delete the "MOCK LINK" section below.
-// ----------------------------------------------------------------------
-
-// --- MOCK LINK (Keep for Preview, Delete for Vercel) ---
-const Link = ({ href, children, className, ...props }) => (
-  <a href={href} className={className} {...props}>{children}</a>
-);
-// -------------------------------------------------------
+import Link from "next/link";
 
 export default function ProductCard({ product }) {
   return (
