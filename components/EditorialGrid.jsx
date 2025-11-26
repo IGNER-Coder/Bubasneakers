@@ -1,4 +1,11 @@
-import Link from "next/link";
+"use client";
+
+// ----------------------------------------------------------------------
+// ⚠️ FOR VERCEL DEPLOYMENT:
+// 1. Uncomment the line below:
+import Link from "next/link"; 
+
+import { ArrowUpRight } from "lucide-react"; 
 
 export default function EditorialGrid() {
   return (
@@ -23,22 +30,21 @@ export default function EditorialGrid() {
           </div>
         </div>
 
-        {/* 2. MEDIUM PRODUCT CARD (Top Right) - FIXED */}
+        {/* 2. MEDIUM PRODUCT CARD (Top Right) */}
         <div className="relative group bg-[#F5F5F5] rounded-sm overflow-hidden p-8 flex flex-col justify-between border border-neutral-100">
-          {/* Z-10 ensures text stays ON TOP of the image */}
           <div className="relative z-10">
             <span className="text-xs font-bold uppercase tracking-widest text-concrete">The Return</span>
             <h3 className="font-oswald text-3xl text-black mt-1 leading-none">New Balance<br/>550</h3>
           </div>
           
-          {/* Image - Mix Blend Mode for transparency effect */}
+          {/* Image */}
           <img 
             src="new2.jpg" 
             alt="NB 550"
             className="absolute bottom-0 right-0 w-[120%] h-auto object-contain mix-blend-multiply translate-x-10 translate-y-10 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 z-0"
           />
 
-          {/* CTA Button - Added z-10 to make it clickable */}
+          {/* CTA Button */}
           <div className="relative z-10 mt-4">
             <Link href="/shop?brand=New Balance" className="px-6 py-2 border border-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
               Shop Now
