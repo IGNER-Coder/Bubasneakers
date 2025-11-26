@@ -40,3 +40,18 @@ export async function POST(request) {
     return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
+// ... imports ...
+
+// NEW: Add GET capability to list all products for admin
+export async function GET(request) {
+  try {
+    await connectToDatabase();
+    const products = await Product.find({}).sort({ createdAt: -1 });
+    return NextResponse.json(products);
+  } catch (error) {
+    return NextResponse.json({ message: "Server Error" }, { status: 500 });
+  }
+}
+
+// ... existing POST function ...
+

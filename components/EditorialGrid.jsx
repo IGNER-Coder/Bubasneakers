@@ -7,13 +7,18 @@ import Link from "next/link";
 
 import { ArrowUpRight } from "lucide-react"; 
 
+
+
 export default function EditorialGrid() {
   return (
-    <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 h-auto md:h-[800px]">
+    <section className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-32">
+      
+      {/* Layout: Flex Scroll on Mobile, Grid on Desktop */}
+      {/* 'snap-x' enables the slideshow feeling on mobile */}
+      <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-8 h-[500px] md:h-[800px] overflow-x-auto md:overflow-visible snap-x snap-mandatory scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0">
         
         {/* 1. LARGE LIFESTYLE CARD (Left) */}
-        <div className="md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-sm bg-neutral-100">
+        <div className="min-w-[85vw] md:min-w-0 md:col-span-2 md:row-span-2 relative group overflow-hidden rounded-sm bg-neutral-100 snap-center border border-neutral-100">
           <img 
             src="https://images.unsplash.com/photo-1552346154-21d32810aba3?q=80&w=1200&auto=format&fit=crop" 
             alt="Courtside Culture"
@@ -31,29 +36,27 @@ export default function EditorialGrid() {
         </div>
 
         {/* 2. MEDIUM PRODUCT CARD (Top Right) */}
-        <div className="relative group bg-[#F5F5F5] rounded-sm overflow-hidden p-8 flex flex-col justify-between border border-neutral-100">
+        <div className="min-w-[85vw] md:min-w-0 relative group bg-[#F5F5F5] rounded-sm overflow-hidden p-8 flex flex-col justify-between border border-neutral-100 snap-center">
           <div className="relative z-10">
             <span className="text-xs font-bold uppercase tracking-widest text-concrete">The Return</span>
             <h3 className="font-oswald text-3xl text-black mt-1 leading-none">New Balance<br/>550</h3>
           </div>
           
-          {/* Image */}
           <img 
             src="new2.jpg" 
             alt="NB 550"
             className="absolute bottom-0 right-0 w-[120%] h-auto object-contain mix-blend-multiply translate-x-10 translate-y-10 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 z-0"
           />
 
-          {/* CTA Button */}
           <div className="relative z-10 mt-4">
-            <Link href="/shop?brand=New Balance" className="px-6 py-2 border border-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors">
+            <Link href="/shop?brand=New Balance" className="px-6 py-2 border border-black rounded-full text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors bg-white/50 backdrop-blur-sm md:bg-transparent">
               Shop Now
             </Link>
           </div>
         </div>
 
         {/* 3. SMALL CARD (Bottom Right) */}
-        <div className="relative group bg-black text-white rounded-sm overflow-hidden">
+        <div className="min-w-[85vw] md:min-w-0 relative group bg-black text-white rounded-sm overflow-hidden snap-center">
            <img 
             src="women 1.jpg" 
             alt="Running"
