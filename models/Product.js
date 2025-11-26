@@ -17,28 +17,34 @@ const ProductSchema = new mongoose.Schema({
     type: String, 
     required: true 
   },
-  // The "Sneaker" Superpower: Storing arrays easily
   images: [String], 
   category: { 
-    type: String, // e.g. "Lifestyle", "Running"
+    type: String, 
     required: true 
   },
   gender: { 
-    type: String, // "Men", "Women", "Kids"
+    type: String, 
     required: true 
   },
-  // Inventory Management
   sizes: [
     {
       size: { type: Number, required: true },
-      stock: { type: Number, default: 10 } // Default 10 pairs per size
+      stock: { type: Number, default: 10 }
     }
   ],
   isFeatured: {
     type: Boolean,
     default: false
+  },
+  // 🆕 EDITORIAL FIELDS
+  storyLabel: { 
+    type: String, 
+    default: "Just Dropped" // e.g. "THE GRAIL", "OFF-COURT"
+  },
+  curatorNote: {
+    type: String,
+    default: "A fresh addition to the rotation." // e.g. "The silhouette that defined the 90s."
   }
 }, { timestamps: true });
 
-// Prevent recompiling model if it already exists
 export default mongoose.models.Product || mongoose.model("Product", ProductSchema);

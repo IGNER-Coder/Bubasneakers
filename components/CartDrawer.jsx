@@ -5,10 +5,7 @@ import { useCart } from "../context/CartContext";
 
 // ----------------------------------------------------------------------
 // ⚠️ FOR VERCEL DEPLOYMENT:
-// 1. Uncomment the line below:
 import Link from "next/link";
-// 2. Delete the "MOCK LINK" section below.
-// ----------------------------------------------------------------------
 
 
 
