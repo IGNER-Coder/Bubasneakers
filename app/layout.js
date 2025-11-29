@@ -1,18 +1,17 @@
 import { Inter, Oswald } from "next/font/google";
 import "./globals.css";
-import Providers from "./providers"; // The wrapper we just made
-
+import Providers from "./providers";
+import Navbar from "../components/Navbar";
 import CartDrawer from "../components/CartDrawer";
 import Footer from "../components/Footer";
+import { Suspense } from "react"; // ⬅️ 1. Import Suspense
 
-// 1. Configure Body Font
 const inter = Inter({ 
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap", 
 });
 
-// 2. Configure Heading Font
 const oswald = Oswald({ 
   subsets: ["latin"],
   variable: "--font-oswald",
@@ -37,13 +36,16 @@ export default function RootLayout({ children }) {
         className={`${inter.variable} ${oswald.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* Wrap the whole app in the Client Providers */}
         <Providers>
           <div className="min-h-screen flex flex-col">
-           
+            
+            {/* 2. Wrap Navbar in Suspense to fix useSearchParams build error */}
+            <Suspense fallback={<div className="h-20 bg-white border-b border-neutral-100" />}>
+              <Navbar />
+            </Suspense>
+
             <CartDrawer />
             
-            {/* Main Content grows to fill space */}
             <main className="flex-1">
               {children}
             </main>
