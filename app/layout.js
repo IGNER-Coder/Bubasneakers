@@ -4,7 +4,7 @@ import Providers from "./providers";
 import Navbar from "../components/Navbar";
 import CartDrawer from "../components/CartDrawer";
 import Footer from "../components/Footer";
-import { Suspense } from "react"; // ⬅️ 1. Import Suspense
+import { Suspense } from "react"; 
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -39,12 +39,16 @@ export default function RootLayout({ children }) {
         <Providers>
           <div className="min-h-screen flex flex-col">
             
-            {/* 2. Wrap Navbar in Suspense to fix useSearchParams build error */}
-            <Suspense fallback={<div className="h-20 bg-white border-b border-neutral-100" />}>
+            {/* --- NAVBAR SECTION --- */}
+            {/* Removed visual fallback to prevent "Double Navbar" glitch during hydration */}
+            <Suspense fallback={null}>
               <Navbar />
             </Suspense>
+            {/* ---------------------- */}
 
-            <CartDrawer />
+            <Suspense fallback={null}>
+              <CartDrawer />
+            </Suspense>
             
             <main className="flex-1">
               {children}
