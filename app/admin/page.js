@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-// ✅ ADDED: FileSpreadsheet to the imports
+import Link from "next/link"; // ✅ Ensure Link is imported
 import { DollarSign, ShoppingBag, Truck, Loader2, RefreshCw, LayoutDashboard, FileSpreadsheet } from "lucide-react";
 
 export default function AdminPage() {
@@ -73,6 +72,16 @@ export default function AdminPage() {
   // Calculations
   const totalRevenue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
   const pendingOrders = orders.filter(o => o.status === 'Processing').length;
+
+  const StatusBadge = ({ status }) => {
+    const style = {
+      'Processing': 'bg-yellow-100 text-yellow-800',
+      'Shipped': 'bg-blue-100 text-blue-800',
+      'Delivered': 'bg-green-100 text-green-700',
+      'Cancelled': 'bg-red-100 text-red-700',
+    };
+    return <span className={`text-xs font-bold px-3 py-1 rounded-full ${style[status] || 'bg-neutral-100 text-concrete'}`}>{status}</span>;
+  };
 
   return (
     <div className="min-h-screen bg-off-white p-4 md:p-12">
@@ -183,6 +192,7 @@ export default function AdminPage() {
       <div>
         <h2 className="font-oswald text-2xl font-bold mb-4 uppercase">Quick Actions</h2>
         <div className="flex flex-wrap gap-4">
+            {/* 1. Add Product */}
             <Link href="/admin/add">
               <button className="bg-black text-white px-6 py-4 rounded-xl font-bold hover:bg-electric-blue transition-all shadow-lg flex items-center gap-2">
                   <LayoutDashboard className="w-5 h-5" />
@@ -190,7 +200,7 @@ export default function AdminPage() {
               </button>
             </Link>
 
-            {/* 🆕 BULK IMPORT BUTTON */}
+            {/* 2. Bulk Import */}
             <Link href="/admin/import">
                 <button className="bg-white text-black border border-neutral-200 px-6 py-4 rounded-xl font-bold hover:bg-neutral-50 transition-colors flex items-center gap-2">
                     <FileSpreadsheet className="w-5 h-5" />
@@ -198,10 +208,13 @@ export default function AdminPage() {
                 </button>
             </Link>
             
-            <button className="bg-white text-black border border-neutral-200 px-6 py-4 rounded-xl font-bold hover:bg-neutral-50 transition-colors flex items-center gap-2">
-                <RefreshCw className="w-5 h-5" />
-                Manage Inventory
-            </button>
+            {/* 3. MANAGE INVENTORY (FIXED LINK) */}
+            <Link href="/admin/inventory">
+              <button className="bg-white text-black border border-neutral-200 px-6 py-4 rounded-xl font-bold hover:bg-neutral-50 transition-colors flex items-center gap-2">
+                  <RefreshCw className="w-5 h-5" />
+                  Manage Inventory
+              </button>
+            </Link>
         </div>
       </div>
 

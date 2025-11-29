@@ -1,13 +1,11 @@
 import connectToDatabase from "@/lib/db";
 import Order from "@/models/Order";
 import { NextResponse } from "next/server";
+import { sendOrderEmails } from "@/lib/email"; // ⬅️ Import the emailer
 
 export async function POST(request) {
   try {
     const body = await request.json();
-    console.log("📦 Order Attempt:", body); // Debug Log
-
-    // We don't need to trust 'totalAmount' from the client anymore
     const { items, shippingAddress, userId, paymentMethod } = body;
 
     if (!items || items.length === 0) {
@@ -16,24 +14,23 @@ export async function POST(request) {
 
     await connectToDatabase();
 
-    // 🛡️ SECURITY FIX: Calculate total on the server
-    // This ensures the total matches the items and prevents the "missing total" error
+    // Calculate total securely on server
     const calculatedTotal = items.reduce((sum, item) => {
       return sum + (Number(item.price) * Number(item.quantity));
     }, 0);
 
-    // Create the Order
+    // 1. Create Order
     const newOrder = await Order.create({
-      userId: userId || undefined, // undefined tells Mongo "skip this field" instead of null
+      userId: userId || undefined,
       items: items.map(item => ({
-        productId: item.id || item._id, // Handle both ID formats
+        productId: item.id || item._id,
         name: item.name,
         size: item.size,
         quantity: item.quantity,
         priceAtPurchase: item.price,
         image: item.images?.[0] || item.image || ""
       })),
-      totalAmount: calculatedTotal, // ⬅️ Use the safe, calculated total
+      totalAmount: calculatedTotal,
       shippingAddress,
       paymentMethod: paymentMethod || 'WhatsApp',
       status: 'Processing'
@@ -41,13 +38,20 @@ export async function POST(request) {
 
     console.log("✅ Order Created:", newOrder._id);
 
+    // 2. 📧 SEND EMAILS (Fire and Forget)
+    // We don't await this because we don't want to slow down the checkout redirect
+    if (shippingAddress.email) {
+        sendOrderEmails({ order: newOrder, customerEmail: shippingAddress.email })
+            .catch(err => console.error("Email Error:", err));
+    }
+
     return NextResponse.json({ 
       message: "Order Created", 
       orderId: newOrder._id 
     }, { status: 201 });
 
   } catch (error) {
-    console.error("🔥 Order API Error:", error); // This will show in your VS Code Terminal
+    console.error("🔥 Order API Error:", error);
     return NextResponse.json({ message: error.message || "Failed to create order" }, { status: 500 });
   }
 }

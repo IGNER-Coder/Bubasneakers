@@ -84,17 +84,14 @@ export default function CheckoutPage() {
         // 2. Construct the Detailed WhatsApp Message (CLEAN VERSION)
         const orderIdShort = orderJson.orderId ? orderJson.orderId.slice(-6).toUpperCase() : "NEW";
         
-        // Build string with standard newlines (\n)
         const itemList = cart.map(i => 
             `- ${i.name} (Size ${i.size}) x${i.quantity} : KES ${(i.price * i.quantity).toLocaleString()}`
         ).join('\n'); 
         
-        // Removed Emojis to prevent "" encoding issues on some devices
         const shippingDetails = `Name: ${formData.firstName} ${formData.lastName}\nAddress: ${formData.address}, ${formData.city}\nPhone: ${formData.phone}`;
 
         const rawMessage = `*NEW ORDER #${orderIdShort}*\n\nHello Buba! I want to finalize my order:\n\n*ITEMS:*\n${itemList}\n\n*TOTAL: KES ${cartTotal.toLocaleString()}*\n\n*SHIPPING DETAILS:*\n${shippingDetails}\n\nPlease provide payment details.`;
         
-        // CRITICAL FIX: encodeURIComponent handles the # symbol safely
         const whatsappUrl = `https://wa.me/${MERCHANT_PHONE}?text=${encodeURIComponent(rawMessage)}`;
 
         // 3. Redirect
@@ -148,7 +145,6 @@ export default function CheckoutPage() {
               <h2 className="font-oswald text-2xl font-bold uppercase mb-6">2. Payment Method</h2>
               <div className="space-y-4">
                 
-                {/* Option 1: WhatsApp (Active) */}
                 <div 
                   onClick={() => setPaymentMethod("whatsapp")}
                   className={`relative p-6 bg-green-50 border-2 ${paymentMethod === "whatsapp" ? "border-green-500 ring-1 ring-green-500" : "border-green-200"} rounded-xl flex items-center gap-4 cursor-pointer shadow-sm transition-all`}
@@ -167,7 +163,6 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                {/* Option 2: Automated M-Pesa (Coming Soon) */}
                 <div className="relative p-6 bg-white border border-neutral-200 rounded-xl flex items-center gap-4 opacity-50 cursor-not-allowed grayscale">
                   <div className="bg-neutral-100 p-3 rounded-full text-concrete">
                     <Smartphone className="w-6 h-6" />
@@ -181,7 +176,6 @@ export default function CheckoutPage() {
                   </span>
                 </div>
 
-                 {/* Option 3: Card (Coming Soon) */}
                  <div className="relative p-6 bg-white border border-neutral-200 rounded-xl flex items-center gap-4 opacity-50 cursor-not-allowed grayscale">
                   <div className="bg-neutral-100 p-3 rounded-full text-concrete">
                     <CreditCard className="w-6 h-6" />
@@ -213,9 +207,40 @@ export default function CheckoutPage() {
           </div>
           
           <div className="lg:col-span-5">
-             {/* Minimal Order Summary */}
+             {/* Order Summary Component with Fixed Image Handling */}
              <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral-100 sticky top-24">
                 <h3 className="font-oswald text-xl font-bold uppercase mb-6">Order Summary</h3>
+                
+                <div className="space-y-6 mb-8 max-h-[40vh] overflow-y-auto pr-2 scrollbar-hide">
+                  {cart.length === 0 ? (
+                      <p className="text-concrete">Your cart is empty.</p>
+                  ) : (
+                    cart.map((item, idx) => (
+                      <div key={`${item.id}-${item.size}-${idx}`} className="flex gap-4">
+                        <div className="w-16 h-16 bg-neutral-50 rounded-md overflow-hidden border border-neutral-100 relative">
+                          {/* ✅ FIX: Robust image source check to handle both array and string formats */}
+                          <img 
+                            src={
+                              (item.images && item.images.length > 0) ? item.images[0] : 
+                              (item.image ? item.image : "/placeholder.jpg")
+                            } 
+                            alt={item.name} 
+                            className="w-full h-full object-cover" 
+                          />
+                          <span className="absolute top-0 right-0 bg-concrete text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-bl-md">
+                            {item.quantity}
+                          </span>
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-bold text-sm line-clamp-2">{item.name}</h4>
+                          <p className="text-xs text-concrete">Size: {item.size}</p>
+                        </div>
+                        <p className="font-bold text-sm">${item.price * item.quantity}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
                 <div className="space-y-4 border-t border-neutral-100 pt-6">
                   <div className="flex justify-between text-sm"><span className="text-concrete">Subtotal</span><span className="font-bold">KES {cartTotal.toLocaleString()}</span></div>
                   <div className="flex justify-between text-sm"><span className="text-concrete">Shipping</span><span className="text-electric-blue font-bold uppercase text-xs tracking-wider">Free</span></div>
