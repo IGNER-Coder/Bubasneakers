@@ -15,7 +15,7 @@ import { ArrowRight } from "lucide-react";
 const Link = ({ href, children, className, ...props }) => (
   <a href={href} className={className} {...props}>{children}</a>
 );
-const Image = ({ src, alt, className, fill, style }) => (
+const Image = ({ src, alt, className, fill, style, unoptimized }) => (
   <img 
     src={src} 
     alt={alt} 
@@ -32,10 +32,13 @@ export default function Hero() {
       {/* 1. BACKGROUND IMAGE (EDITORIAL COVER SHOT) */}
       <div className="absolute inset-0">
         <Image
+          // ✅ FIX: Using the raw URL you provided (removed f_auto,q_auto for safety)
           src="https://res.cloudinary.com/doevklqj6/image/upload/v1764408817/Hero_Img_rcsgb9.png"
           alt="Jordan 4 Retro Military Blue sneaker editorial shot"
           fill
           priority
+          // ✅ FIX: Added 'unoptimized' to bypass Next.js strict image optimization checks
+          unoptimized
           className="object-cover object-center opacity-90 hover:scale-105 transition-transform duration-[15s] ease-out"
           quality={90}
         />
