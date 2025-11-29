@@ -21,7 +21,19 @@ const UserSchema = new mongoose.Schema({
     default: "user",
   },
   image: String,
+  
+  // 🆕 WISHLIST FIELD
+  wishlist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    }
+  ],
+  
+  // Shipping defaults
+  phone: String,
+  address: String,
+  city: String,
 }, { timestamps: true });
 
-// Check if model exists before compiling to prevent Hot Reload errors
 export default mongoose.models.User || mongoose.model("User", UserSchema);

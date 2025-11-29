@@ -1,23 +1,94 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
-import { Star, Heart, Minus, Plus, ChevronLeft, Truck, ShieldCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Star, Heart, Minus, Plus, ChevronLeft, Truck, ShieldCheck, Loader2 } from "lucide-react";
+
+// ✅ PRODUCTION IMPORTS ENABLED
+import Link from "next/link"; 
 import { useCart } from "../context/CartContext";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ProductView({ product }) {
-  const { addToCart } = useCart();
+  const { addToCart, formatPrice } = useCart(); 
+  const { data: session } = useSession(); // Now uses REAL session
+  const router = useRouter();
+
   const [selectedSize, setSelectedSize] = useState(null);
-  // Default to the first image, or the only image if array is empty
   const [mainImage, setMainImage] = useState(product.images?.[0] || product.image);
   const [quantity, setQuantity] = useState(1);
+  
+  // Wishlist State
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  // 🧠 MEMORY LOGIC: Check if this product is in user's wishlist on load
+  useEffect(() => {
+    const checkWishlist = async () => {
+      if (!session?.user?.email) return;
+      
+      try {
+        // Ask API for my list
+        const res = await fetch(`/api/wishlist?email=${session.user.email}`);
+        if (res.ok) {
+          const wishlistIds = await res.json();
+          
+          // Safe ID comparison
+          const productId = product._id?.toString() || product.id?.toString();
+          const isInData = wishlistIds.includes(productId);
+          
+          if (isInData) {
+            setIsWishlisted(true);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to sync wishlist", error);
+      }
+    };
+
+    checkWishlist();
+  }, [session, product]);
+
+  const handleWishlistToggle = async () => {
+    if (!session) {
+      // If not logged in, redirect to login page
+      router.push("/login");
+      return;
+    }
+
+    // Optimistic UI Update (Turn red immediately)
+    const previousState = isWishlisted;
+    setIsWishlisted(!isWishlisted);
+    setWishlistLoading(true);
+
+    try {
+      const res = await fetch("/api/wishlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+            productId: product._id || product.id, 
+            email: session.user.email 
+        }),
+      });
+
+      if (!res.ok) {
+        // Revert if server failed (e.g. User not found)
+        console.error("Wishlist API failed");
+        setIsWishlisted(previousState);
+      }
+    } catch (error) {
+      console.error("Wishlist toggle error", error);
+      setIsWishlisted(previousState);
+    } finally {
+      setWishlistLoading(false);
+    }
+  };
 
   const handleAddToCart = () => {
     if (!selectedSize) {
       alert("Please select a size first!"); 
       return;
     }
-    // Pass the full product object plus the selected size/qty
     addToCart(product, selectedSize, quantity);
   };
 
@@ -25,7 +96,6 @@ export default function ProductView({ product }) {
     <div className="min-h-screen bg-white pb-20 animate-fade-in">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Breadcrumb */}
         <Link href="/" className="inline-flex items-center text-concrete hover:text-black mb-8 transition-colors text-sm font-bold uppercase tracking-wider group">
           <ChevronLeft className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" />
           Back to Drops
@@ -35,7 +105,6 @@ export default function ProductView({ product }) {
           
           {/* LEFT: Gallery */}
           <div className="lg:col-span-7 flex flex-col-reverse lg:flex-row gap-4 lg:gap-6">
-            {/* Thumbnails */}
             <div className="flex lg:flex-col gap-4 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 scrollbar-hide lg:w-20 flex-shrink-0">
               {product.images?.map((img, idx) => (
                 <button 
@@ -50,7 +119,6 @@ export default function ProductView({ product }) {
               ))}
             </div>
             
-            {/* Main Image */}
             <div className="flex-1 relative group cursor-zoom-in">
                <div className="relative w-full aspect-[4/5] lg:aspect-auto h-full lg:h-[75vh] flex items-start justify-center">
                  <img 
@@ -59,8 +127,18 @@ export default function ProductView({ product }) {
                    alt={product.name} 
                  />
                </div>
-               <button className="absolute top-0 right-0 p-3 bg-white rounded-full shadow-lg hover:scale-110 transition text-neutral-400 hover:text-red-500 z-10">
-                  <Heart className="w-6 h-6 fill-current" />
+               
+               {/* WISHLIST BUTTON */}
+               <button 
+                 onClick={handleWishlistToggle}
+                 disabled={wishlistLoading}
+                 className={`absolute top-0 right-0 p-3 rounded-full shadow-lg hover:scale-110 transition z-10 ${
+                    isWishlisted 
+                        ? 'bg-red-50 text-red-500' 
+                        : 'bg-white text-neutral-400 hover:text-red-500'
+                 }`}
+               >
+                  {wishlistLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Heart className={`w-6 h-6 ${isWishlisted ? 'fill-current' : ''}`} />}
                </button>
             </div>
           </div>
@@ -80,11 +158,11 @@ export default function ProductView({ product }) {
                <p className="text-xl text-concrete font-medium">{product.category}</p>
             </div>
 
-            <div className="text-3xl font-bold mb-8 font-sans border-b border-neutral-100 pb-8">
-              ${product.price}
+            <div className="text-3xl font-bold mb-8 font-sans border-b border-neutral-100 pb-8 text-black">
+              {formatPrice(product.price)}
             </div>
 
-            {/* Size Selector (Handling DB Object Structure) */}
+            {/* Size Selector */}
             <div className="mb-8">
               <div className="flex justify-between mb-4">
                 <span className="font-bold text-sm uppercase tracking-wide">Select Size (US)</span>
@@ -139,7 +217,6 @@ export default function ProductView({ product }) {
                <p className="text-center text-xs text-concrete">Free shipping on orders over $200.</p>
             </div>
 
-            {/* Static Trust Badges */}
             <div className="grid grid-cols-2 gap-4 mb-8">
               <div className="flex items-center gap-3 p-4 bg-neutral-50 rounded-xl border border-neutral-100">
                 <Truck className="w-6 h-6 text-concrete" />

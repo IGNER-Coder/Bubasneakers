@@ -5,24 +5,20 @@ import connectToDatabase from "../../lib/db";
 import Product from "../../models/Product";
 import Link from "next/link";
 
-// --- 1. SERVER SIDE DATA FETCHING ---
 async function getProducts(resolvedSearchParams) {
   await connectToDatabase();
 
   const filter = {};
   const sort = {};
 
-  // A. Brand Filter
   if (resolvedSearchParams.brand && resolvedSearchParams.brand !== "All") {
     filter.brand = resolvedSearchParams.brand;
   }
   
-  // B. Gender Filter
   if (resolvedSearchParams.gender && resolvedSearchParams.gender !== "all") {
     filter.gender = { $regex: new RegExp(resolvedSearchParams.gender, "i") };
   }
   
-  // C. Tag/Category Filter
   if (resolvedSearchParams.tag && resolvedSearchParams.tag !== "all") {
     if (resolvedSearchParams.tag === "new") {
       filter.isFeatured = true;
@@ -31,7 +27,6 @@ async function getProducts(resolvedSearchParams) {
     }
   }
 
-  // D. Price Range Filter
   if (resolvedSearchParams.priceRange) {
     const priceMap = {
       "under-100": { $lt: 100 },
@@ -44,12 +39,10 @@ async function getProducts(resolvedSearchParams) {
     }
   }
 
-  // E. On Sale Filter
   if (resolvedSearchParams.onSale === 'true') {
     filter.price = { $lt: 150 }; 
   }
 
-  // F. Sorting Logic
   if (resolvedSearchParams.sort === "price-asc") {
     sort.price = 1; 
   } else if (resolvedSearchParams.sort === "price-desc") {
@@ -58,15 +51,15 @@ async function getProducts(resolvedSearchParams) {
     sort.createdAt = -1; 
   }
 
-  // G. The Query
   const products = await Product.find(filter).sort(sort).lean();
 
-  // H. SERIALIZATION
   return products.map(p => ({
     ...p,
     id: p._id.toString(),
     _id: p._id.toString(),
     image: p.images && p.images.length > 0 ? p.images[0] : '',
+    // ✅ ADDED: Pass the full images array
+    images: p.images || [],
     sizes: p.sizes ? p.sizes.map(s => ({
       size: s.size,
       stock: s.stock,
@@ -90,11 +83,10 @@ export default async function ShopPage({ searchParams }) {
     resolvedSearchParams.onSale === 'true'
   ].filter(Boolean).length;
 
-  // --- REUSABLE FILTER UI WITH ACCORDIONS ---
+  // --- REUSABLE FILTER UI ---
   const FilterContent = (
     <div className="space-y-6">
-      
-      {/* 1. Brand Filter (Collapsible) */}
+      {/* Brand Filter */}
       <details className="group" open>
         <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
           Brands
@@ -125,7 +117,7 @@ export default async function ShopPage({ searchParams }) {
       
       <div className="h-px w-full bg-neutral-100" />
 
-      {/* 2. Category Filter */}
+      {/* Category Filter */}
       <details className="group" open>
         <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
           Category
@@ -152,7 +144,7 @@ export default async function ShopPage({ searchParams }) {
 
       <div className="h-px w-full bg-neutral-100" />
 
-      {/* 3. Gender Filter */}
+      {/* Gender Filter */}
       <details className="group">
         <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
           Gender
@@ -184,7 +176,7 @@ export default async function ShopPage({ searchParams }) {
 
       <div className="h-px w-full bg-neutral-100" />
 
-      {/* 4. Price Range Filter */}
+      {/* Price Range Filter */}
       <details className="group">
         <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
           Price

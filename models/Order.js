@@ -1,45 +1,48 @@
 import mongoose from "mongoose";
 
 const OrderSchema = new mongoose.Schema({
-  // Link to the user who placed the order
+  // Link to the user (Optional for Guest Checkout)
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: false, // ⬅️ CHANGED FROM TRUE TO FALSE
   },
   
-  // Array of items purchased (we save a snapshot of the price at purchase)
   items: [
     {
+      // We store a snapshot of product details in case the product is deleted later
       productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
       name: String,
       size: Number,
       quantity: Number,
-      priceAtPurchase: Number, // Price the user actually paid
+      priceAtPurchase: Number,
       image: String,
     }
   ],
 
-  // Shipping & Payment Details
   shippingAddress: {
     name: String,
     address: String,
     city: String,
     postalCode: String,
     phone: String,
+    email: String, // Added email to shipping details
   },
 
-  // Financials
   totalAmount: {
     type: Number,
     required: true,
   },
   
-  // Status tracking (critical for customer service)
   status: {
     type: String,
     enum: ['Processing', 'Paid', 'Shipped', 'Delivered', 'Cancelled'],
     default: 'Processing',
+  },
+
+  paymentMethod: {
+    type: String,
+    default: 'WhatsApp',
   },
   
   trackingNumber: {

@@ -87,13 +87,15 @@ export default function OrderHistoryClient({ orders }) {
 
                 {/* Footer Totals */}
                 <div className="mt-4 pt-4 border-t border-neutral-100 flex justify-between items-center">
-                    <div className="flex items-center gap-1">
-                        <DollarSign className="w-4 h-4 text-black" />
-                        <span className="font-oswald text-xl font-bold">Total: ${order.totalAmount}</span>
-                    </div>
-                    <button className="text-sm font-bold text-black border border-black px-4 py-2 rounded-full hover:bg-black hover:text-white transition-colors">
-                        View Details
-                    </button>
+    <div className="flex items-center gap-1">
+        <DollarSign className="w-4 h-4 text-black" />
+        <span className="font-oswald text-xl font-bold">Total: ${order.totalAmount}</span>
+    </div>
+                    <Link href={`/account/orders/${order._id}`}>
+      <button className="text-sm font-bold text-black border border-black px-4 py-2 rounded-full hover:bg-black hover:text-white transition-colors">
+          Track Order
+      </button>
+    </Link>
                 </div>
               </div>
             ))}

@@ -1,0 +1,155 @@
+import React from 'react';
+
+export default function QuotationDocument() {
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-4xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden">
+        {/* Header */}
+        <div className="bg-blue-600 text-white p-6">
+          <h1 className="text-3xl font-bold">QUOTATION</h1>
+          <p className="text-sm mt-2">Date: {new Date().toLocaleDateString()}</p>
+        </div>
+
+        {/* Content */}
+        <div className="p-8">
+          {/* Roof Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              ROOF
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="font-semibold">Kiti:</p>
+                <p className="ml-4">20</p>
+              </div>
+              <div>
+                <p className="font-semibold">Mabati:</p>
+                <p className="ml-4">2M</p>
+              </div>
+              <div>
+                <p className="font-semibold">Nails:</p>
+                <p className="ml-4">4 kg, 3 kgs</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Butter Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              BUTTER
+            </h2>
+            <div className="space-y-2">
+              <p><span className="font-semibold">200 Ksh</span> - Wheelbarrow/Vyombo (15 Vumbi @ 220 kg)</p>
+              <p><span className="font-semibold">850 Ksh</span> - 6 Simiti</p>
+            </div>
+          </section>
+
+          {/* Bed & Kiti Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              BED & KITI
+            </h2>
+            <div className="space-y-3">
+              <div>
+                <p className="font-semibold text-lg">Fullets:</p>
+                <ul className="ml-6 space-y-1">
+                  <li>• Screws/Nails</li>
+                  <li>• Paint</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Cooking Sets Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              COOKING SETS
+            </h2>
+            <div className="space-y-2">
+              <p>• Sufuria: <span className="font-semibold">1,000 Ksh</span></p>
+              <p>• Kotor Gas: <span className="font-semibold">3,600 Ksh</span></p>
+              <p>• Utensils: <span className="font-semibold">500 Ksh</span></p>
+            </div>
+          </section>
+
+          {/* Lights Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              LIGHTS
+            </h2>
+            <div className="space-y-2">
+              <p>• Lord 3 Bord Hotor: <span className="font-semibold">200 Ksh</span></p>
+              <p>• Socket: <span className="font-semibold">150 Ksh</span></p>
+              <p>• Wire 10M: <span className="font-semibold">400 Ksh</span></p>
+              <p>• Switch: <span className="font-semibold">150 Ksh</span></p>
+            </div>
+          </section>
+
+          {/* Bed & Kiti (Detailed) Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              BED & KITI (DETAILED)
+            </h2>
+            <div className="space-y-2">
+              <p>• 4×6 B: <span className="font-semibold">3,000 Ksh</span></p>
+              <p>• Pallets 3: <span className="font-semibold">1,500 Ksh</span></p>
+              <p>• Screws 3: <span className="font-semibold">1,050 Ksh</span></p>
+              <p>• Mattress 4×6: <span className="font-semibold">6,000 Ksh</span></p>
+              <p>• Cousin 2 pcs: <span className="font-semibold">1,000 Ksh</span></p>
+              <p>• Duvet 1: <span className="font-semibold">1,000 Ksh</span></p>
+              <p>• Pillows 2: <span className="font-semibold">300 Ksh</span></p>
+            </div>
+          </section>
+
+          {/* Clothes Section */}
+          <section className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-blue-600 pb-2 mb-4">
+              CLOTHES
+            </h2>
+            <div className="space-y-2">
+              <p className="text-xl font-semibold text-blue-600">4,000 Ksh</p>
+            </div>
+          </section>
+
+          {/* Total Section */}
+          <section className="mt-10 pt-6 border-t-4 border-blue-600">
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <div className="flex justify-between items-center">
+                <h3 className="text-2xl font-bold text-gray-800">TOTAL ESTIMATE:</h3>
+                <p className="text-3xl font-bold text-blue-600">
+                  {(220 + 200 + 850 + 1000 + 3600 + 500 + 200 + 150 + 400 + 150 + 3000 + 1500 + 1050 + 6000 + 1000 + 1000 + 300 + 4000).toLocaleString()} Ksh
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        {/* Footer */}
+        <div className="bg-gray-100 p-6 text-center">
+          <button
+            onClick={handlePrint}
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Print / Save as PDF
+          </button>
+          <p className="text-sm text-gray-600 mt-4">
+            Thank you for your business!
+          </p>
+        </div>
+      </div>
+
+      {/* Print Styles */}
+      <style>{`
+        @media print {
+          body { margin: 0; }
+          .min-h-screen { min-height: auto; }
+          button { display: none; }
+        }
+      `}</style>
+    </div>
+  );
+}
