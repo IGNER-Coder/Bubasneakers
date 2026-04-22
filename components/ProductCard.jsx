@@ -1,10 +1,8 @@
 "use client";
 
-import { Plus } from "lucide-react";
-
 // ----------------------------------------------------------------------
-// ⚠️ FOR VERCEL DEPLOYMENT:
-// 1. UNCOMMENT the real imports below:
+// ✅ PRODUCTION READY PRODUCT CARD
+// ----------------------------------------------------------------------
 import Link from "next/link";
 import { useCart } from "../context/CartContext";
 
@@ -15,17 +13,15 @@ export default function ProductCard({ product }) {
   const hoverImage = product.images && product.images.length > 1 ? product.images[1] : null;
 
   return (
-    <Link href={`/product/${product.id}`} className="group cursor-pointer block h-full">
-      
-      <div className="relative aspect-square w-full bg-neutral-50 rounded-lg overflow-hidden mb-3">
+    <Link href={`/product/${product.id}`} className="group cursor-pointer flex flex-col h-full bg-white rounded-2xl p-2 transition-all hover:bg-neutral-50">
+      <div className="relative aspect-[4/5] w-full bg-neutral-100/50 rounded-2xl overflow-hidden mb-3">
         
         {/* 1. MAIN IMAGE (Visible by default) */}
-        {/* If there is a hover image, we fade this one out on hover. If not, we just zoom it. */}
         <img 
           src={product.image} 
           alt={product.name}
-          className={`w-full h-full object-cover object-center transition-all duration-500 ease-out ${
-            hoverImage ? 'group-hover:opacity-0' : 'group-hover:scale-[1.03]'
+          className={`w-full h-full object-cover object-center transition-all duration-700 ease-out p-4 ${
+            hoverImage ? 'group-hover:opacity-0' : 'group-hover:scale-110'
           }`}
         />
 
@@ -34,43 +30,41 @@ export default function ProductCard({ product }) {
           <img 
             src={hoverImage} 
             alt={product.name + " Alternate"}
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out scale-[1.03]"
+            className="absolute inset-0 w-full h-full object-cover object-center opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out scale-105 p-4"
           />
         )}
-        
-        {/* Quick Add Button */}
-        <button 
-          onClick={(e) => {
-            e.preventDefault(); 
-            e.stopPropagation();
-            console.log("Quick add logic here");
-          }}
-          className="absolute bottom-3 right-3 bg-white text-black p-2.5 rounded-full shadow-lg translate-y-10 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:scale-110 hover:bg-black hover:text-white z-10 active:scale-95"
-          aria-label="Quick add to cart"
-        >
-          <Plus className="w-4 h-4" strokeWidth={2.5} />
-        </button>
 
-        {product.soldOut && (
-          <div className="absolute top-3 left-3 bg-black/80 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1.5 rounded-md z-10">
-            Sold Out
-          </div>
-        )}
+        {/* Status Tags */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 z-10">
+           {product.soldOut && (
+             <div className="bg-black/80 backdrop-blur-md text-white text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+               Sold Out
+             </div>
+           )}
+           {product.isFeatured && !product.soldOut && (
+             <div className="bg-white/90 backdrop-blur-md text-black text-[10px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-full shadow-sm">
+               New
+             </div>
+           )}
+        </div>
       </div>
 
-      <div className="space-y-1.5">
-        <p className="text-neutral-500 text-xs font-medium uppercase tracking-wide">
-          {product.brand}
-        </p>
+      <div className="flex flex-col flex-1 px-2 pb-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="flex items-center justify-between mb-1">
+           <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-[0.2em]">
+             {product.brand}
+           </span>
+        </div>
         
-        <h3 className="font-sans text-base font-semibold text-black leading-snug group-hover:text-electric-blue transition-colors line-clamp-2">
+        <h3 className="font-oswald text-base font-medium text-black leading-snug uppercase group-hover:text-electric-blue transition-colors line-clamp-2">
           {product.name}
         </h3>
         
-        {/* DYNAMIC PRICE */}
-        <p className="font-sans text-base font-bold text-black mt-2">
-          {formatPrice(product.price)}
-        </p>
+        <div className="mt-auto pt-3">
+            <span className="font-sans text-sm font-medium text-concrete tracking-wide">
+              {formatPrice(product.price)}
+            </span>
+        </div>
       </div>
     </Link>
   );

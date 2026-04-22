@@ -12,7 +12,7 @@ async function getProducts(resolvedSearchParams) {
   const sort = {};
 
   if (resolvedSearchParams.brand && resolvedSearchParams.brand !== "All") {
-    filter.brand = resolvedSearchParams.brand;
+    filter.brand = { $regex: new RegExp(`^${resolvedSearchParams.brand}$`, "i") };
   }
   
   if (resolvedSearchParams.gender && resolvedSearchParams.gender !== "all") {
@@ -29,10 +29,10 @@ async function getProducts(resolvedSearchParams) {
 
   if (resolvedSearchParams.priceRange) {
     const priceMap = {
-      "under-100": { $lt: 100 },
-      "100-150": { $gte: 100, $lte: 150 },
-      "150-200": { $gte: 150, $lte: 200 },
-      "over-200": { $gt: 200 }
+      "under-3k": { $lt: 3000 },
+      "3k-6k": { $gte: 3000, $lte: 6000 },
+      "6k-10k": { $gte: 6000, $lte: 10000 },
+      "over-10k": { $gt: 10000 }
     };
     if (priceMap[resolvedSearchParams.priceRange]) {
       filter.price = priceMap[resolvedSearchParams.priceRange];
@@ -40,7 +40,7 @@ async function getProducts(resolvedSearchParams) {
   }
 
   if (resolvedSearchParams.onSale === 'true') {
-    filter.price = { $lt: 150 }; 
+    filter.price = { $lt: 4000 }; 
   }
 
   if (resolvedSearchParams.sort === "price-asc") {
@@ -58,13 +58,13 @@ async function getProducts(resolvedSearchParams) {
     id: p._id.toString(),
     _id: p._id.toString(),
     image: p.images && p.images.length > 0 ? p.images[0] : '',
-    // ✅ ADDED: Pass the full images array
     images: p.images || [],
     sizes: p.sizes ? p.sizes.map(s => ({
       size: s.size,
       stock: s.stock,
       _id: s._id ? s._id.toString() : undefined
-    })) : []
+    })) : [],
+    soldOut: p.sizes && p.sizes.length > 0 ? p.sizes.reduce((sum, s) => sum + s.stock, 0) === 0 : true
   }));
 }
 
@@ -72,7 +72,11 @@ export default async function ShopPage({ searchParams }) {
   const resolvedSearchParams = await searchParams;
   const products = await getProducts(resolvedSearchParams);
   
-  const activeBrand = resolvedSearchParams.brand || "All";
+  // Create an explicit case-insensitive brand resolution
+  const activeBrand = resolvedSearchParams.brand 
+    ? ["Nike", "Jordan", "Adidas", "New Balance", "Yeezy", "Puma", "Reebok"].find(b => b.toLowerCase() === resolvedSearchParams.brand.toLowerCase()) || resolvedSearchParams.brand
+    : "All";
+    
   const activeSort = resolvedSearchParams.sort || "newest";
 
   const activeFilterCount = [
@@ -88,25 +92,25 @@ export default async function ShopPage({ searchParams }) {
     <div className="space-y-6">
       {/* Brand Filter */}
       <details className="group" open>
-        <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
+        <summary className="flex justify-between items-center font-oswald text-base uppercase tracking-widest font-bold text-black cursor-pointer list-none mb-4 outline-none">
           Brands
           <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
         </summary>
         <div className="space-y-3 pl-1 animate-fade-in">
-          {["All", "Nike", "Adidas", "New Balance", "Puma", "Reebok"].map(brand => {
+          {["All", "Nike", "Adidas", "New Balance", "Puma", "Reebok", "Jordan", "Yeezy"].map(brand => {
             const isActive = activeBrand === brand;
-            const query = { ...resolvedSearchParams, brand: brand === "All" ? undefined : brand };
+            const query = { ...resolvedSearchParams, brand: brand === "All" ? undefined : brand.toLowerCase() };
             
             return (
               <Link key={brand} href={{ query }} className="flex items-center gap-3 cursor-pointer group/item transition-all">
-                <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-all ${isActive ? 'bg-black border-black' : 'border-neutral-300 group-hover/item:border-neutral-500'}`}>
+                <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-all ${isActive ? 'bg-black border-black shadow-[0_0_0_2px_rgba(0,0,0,0.1)]' : 'border-neutral-300 group-hover/item:border-neutral-500'}`}>
                   {isActive && (
                     <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   )}
                 </div>
-                <span className={`text-sm transition-colors ${isActive ? 'font-semibold text-black' : 'text-neutral-600 group-hover/item:text-black'}`}>
+                <span className={`text-sm transition-colors ${isActive ? 'font-bold text-black' : 'text-neutral-600 group-hover/item:text-black font-medium'}`}>
                   {brand}
                 </span>
               </Link>
@@ -119,7 +123,7 @@ export default async function ShopPage({ searchParams }) {
 
       {/* Category Filter */}
       <details className="group" open>
-        <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
+        <summary className="flex justify-between items-center font-oswald text-base uppercase tracking-widest font-bold text-black cursor-pointer list-none mb-4 outline-none">
           Category
           <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
         </summary>
@@ -131,9 +135,9 @@ export default async function ShopPage({ searchParams }) {
             return (
               <Link key={cat} href={{ query }} className="flex items-center gap-3 cursor-pointer group/item transition-all">
                 <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${isActive ? 'border-black' : 'border-neutral-300 group-hover/item:border-neutral-500'}`}>
-                  {isActive && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                  {isActive && <div className="w-2.5 h-2.5 bg-black rounded-full shadow-sm" />}
                 </div>
-                <span className={`text-sm transition-colors ${isActive ? 'font-semibold text-black' : 'text-neutral-600 group-hover/item:text-black'}`}>
+                <span className={`text-sm transition-colors ${isActive ? 'font-bold text-black' : 'text-neutral-600 group-hover/item:text-black font-medium'}`}>
                   {cat}
                 </span>
               </Link>
@@ -145,8 +149,8 @@ export default async function ShopPage({ searchParams }) {
       <div className="h-px w-full bg-neutral-100" />
 
       {/* Gender Filter */}
-      <details className="group">
-        <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
+      <details className="group" open>
+        <summary className="flex justify-between items-center font-oswald text-base uppercase tracking-widest font-bold text-black cursor-pointer list-none mb-4 outline-none">
           Gender
           <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
         </summary>
@@ -163,9 +167,9 @@ export default async function ShopPage({ searchParams }) {
             return (
               <Link key={option.value} href={{ query }} className="flex items-center gap-3 cursor-pointer group/item transition-all">
                 <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${isActive ? 'border-black' : 'border-neutral-300 group-hover/item:border-neutral-500'}`}>
-                  {isActive && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                  {isActive && <div className="w-2.5 h-2.5 bg-black rounded-full shadow-sm" />}
                 </div>
-                <span className={`text-sm transition-colors ${isActive ? 'font-semibold text-black' : 'text-neutral-600 group-hover/item:text-black'}`}>
+                <span className={`text-sm transition-colors ${isActive ? 'font-bold text-black' : 'text-neutral-600 group-hover/item:text-black font-medium'}`}>
                   {option.label}
                 </span>
               </Link>
@@ -178,17 +182,17 @@ export default async function ShopPage({ searchParams }) {
 
       {/* Price Range Filter */}
       <details className="group">
-        <summary className="flex justify-between items-center font-sans font-semibold text-sm text-black cursor-pointer list-none mb-4">
+        <summary className="flex justify-between items-center font-oswald text-base uppercase tracking-widest font-bold text-black cursor-pointer list-none mb-4 outline-none">
           Price
           <ChevronDown className="w-4 h-4 transition-transform group-open:rotate-180" />
         </summary>
         <div className="space-y-3 pl-1 animate-fade-in">
           {[
             { value: "all", label: "All Prices" },
-            { value: "under-100", label: "Under $100" },
-            { value: "100-150", label: "$100 - $150" },
-            { value: "150-200", label: "$150 - $200" },
-            { value: "over-200", label: "Over $200" }
+            { value: "under-3k", label: "Under Ksh 3,000" },
+            { value: "3k-6k", label: "Ksh 3,000 - 6,000" },
+            { value: "6k-10k", label: "Ksh 6,000 - 10,000" },
+            { value: "over-10k", label: "Over Ksh 10,000" }
           ].map(option => {
             const isActive = resolvedSearchParams.priceRange === option.value || (!resolvedSearchParams.priceRange && option.value === "all");
             const query = { ...resolvedSearchParams, priceRange: option.value === "all" ? undefined : option.value };
@@ -196,9 +200,9 @@ export default async function ShopPage({ searchParams }) {
             return (
               <Link key={option.value} href={{ query }} className="flex items-center gap-3 cursor-pointer group/item transition-all">
                 <div className={`w-5 h-5 border-2 rounded-full flex items-center justify-center transition-all ${isActive ? 'border-black' : 'border-neutral-300 group-hover/item:border-neutral-500'}`}>
-                  {isActive && <div className="w-2.5 h-2.5 bg-black rounded-full" />}
+                  {isActive && <div className="w-2.5 h-2.5 bg-black rounded-full shadow-sm" />}
                 </div>
-                <span className={`text-sm transition-colors ${isActive ? 'font-semibold text-black' : 'text-neutral-600 group-hover/item:text-black'}`}>
+                <span className={`text-sm transition-colors ${isActive ? 'font-bold text-black' : 'text-neutral-600 group-hover/item:text-black font-medium'}`}>
                   {option.label}
                 </span>
               </Link>
@@ -207,24 +211,26 @@ export default async function ShopPage({ searchParams }) {
         </div>
       </details>
 
+      <div className="h-px w-full bg-neutral-100" />
+
       {/* On Sale Toggle */}
-      <div className="pt-4">
+      <div className="pt-2">
         <Link 
           href={{ query: { ...resolvedSearchParams, onSale: resolvedSearchParams.onSale ? undefined : 'true' } }}
           className="flex items-center justify-between cursor-pointer group py-2"
         >
-          <span className="text-sm font-medium text-neutral-700 group-hover:text-black transition-colors">
+          <span className="font-oswald text-base uppercase tracking-widest font-bold text-neutral-800 group-hover:text-black transition-colors">
             On Sale Only
           </span>
-          <div className={`w-11 h-6 rounded-full transition-all relative ${resolvedSearchParams.onSale ? 'bg-electric-blue' : 'bg-neutral-300'}`}>
-            <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform ${resolvedSearchParams.onSale ? 'translate-x-5' : 'translate-x-0.5'}`} />
+          <div className={`w-11 h-6 rounded-full transition-all relative ${resolvedSearchParams.onSale ? 'bg-black shadow-[0_0_10px_rgba(0,0,0,0.3)]' : 'bg-neutral-300'}`}>
+            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${resolvedSearchParams.onSale ? 'translate-x-6' : 'translate-x-1'}`} />
           </div>
         </Link>
       </div>
 
       {/* Clear Filters Button */}
       {activeFilterCount > 0 && (
-        <Link href="/shop" className="flex items-center justify-center gap-2 w-full py-3 px-4 border-2 border-neutral-200 rounded-lg text-sm font-semibold text-neutral-700 hover:border-black hover:text-black transition-all mt-6">
+        <Link href="/shop" className="flex items-center justify-center gap-2 w-full py-4 px-4 bg-white border-2 border-neutral-200 rounded-xl text-xs font-bold uppercase tracking-widest text-neutral-600 hover:border-black hover:text-black transition-all mt-6 active:scale-95">
           <X className="w-4 h-4" /> Clear All Filters
         </Link>
       )}
@@ -234,56 +240,61 @@ export default async function ShopPage({ searchParams }) {
   return (
     <div className="min-h-screen bg-white pb-20">
       
-      {/* 1. HEADER & TOOLS */}
-      <div className="sticky top-16 z-30 bg-white/90 backdrop-blur-md border-b border-neutral-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      {/* 1. HEADER & TOOLS (REDESIGNED) */}
+      <div className="bg-transparent border-none">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
           
-          {/* Page Title */}
-          <div className="flex items-center gap-3">
-            <h1 className="font-sans text-2xl font-semibold text-black">
-              {resolvedSearchParams.gender 
-                ? `${resolvedSearchParams.gender.charAt(0).toUpperCase() + resolvedSearchParams.gender.slice(1)}'s Sneakers`
-                : "All Sneakers"
-              }
-            </h1>
-            <span className="text-xs text-neutral-600 font-medium bg-neutral-100 px-3 py-1.5 rounded-full">
-              {products.length}
-            </span>
-          </div>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+             
+             {/* Item Count */}
+             <div className="flex items-center shrink-0">
+               <span className="text-xs font-bold font-sans bg-neutral-100 text-neutral-600 px-3 py-1 rounded-full">
+                 {products.length} Sneakers
+               </span>
+             </div>
 
-          {/* Client Wrapper */}
-          <ShopClientWrapper 
-             resolvedSearchParams={resolvedSearchParams}
-             activeFilterCount={activeFilterCount}
-             activeSort={activeSort}
-             mobileFilters={FilterContent} 
-          >
-            {/* The Grid is rendered below as children */}
-          </ShopClientWrapper>
+             {/* Action Buttons (Filter & Sort) */}
+             <div className="w-full lg:w-auto">
+                <ShopClientWrapper 
+                   resolvedSearchParams={resolvedSearchParams}
+                   activeFilterCount={activeFilterCount}
+                   activeSort={activeSort}
+                   mobileFilters={FilterContent} 
+                />
+             </div>
+
+          </div>
+          
+
 
         </div>
       </div>
 
+      {/* Grid Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-12">
           
-          {/* 2. SIDEBAR FILTERS */}
-          <aside className="hidden lg:block w-64 space-y-8 sticky top-32 h-fit">
+          {/* 2. SIDEBAR FILTERS (DESKTOP) */}
+          <aside className="hidden lg:block w-64 space-y-8 sticky top-56 h-[calc(100vh-14rem)] overflow-y-auto scrollbar-hide shrink-0 pb-10">
             {FilterContent}
           </aside>
 
           {/* 3. PRODUCT GRID */}
           <div className="flex-1">
             {products.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-12">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-12">
                 {products.map(product => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
             ) : (
-              <div className="py-20 text-center">
-                <p className="text-xl text-concrete">No sneakers found matching your filters.</p>
-                <Link href="/shop" className="mt-4 inline-block text-electric-blue font-bold hover:underline">
+              <div className="py-20 text-center flex flex-col items-center justify-center">
+                <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mb-6">
+                   <SlidersHorizontal className="w-8 h-8 text-neutral-400" />
+                </div>
+                <h3 className="font-oswald text-2xl uppercase tracking-wider font-bold mb-2">No Matches Found</h3>
+                <p className="text-base text-concrete mb-8 max-w-md">We couldn't find any sneakers matching your current filter selections.</p>
+                <Link href="/shop" className="bg-black text-white px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs hover:bg-neutral-800 transition shadow-lg shadow-black/10 active:scale-95">
                   Clear All Filters
                 </Link>
               </div>

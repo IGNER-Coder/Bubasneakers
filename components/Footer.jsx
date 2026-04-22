@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="col-span-2 md:col-span-1">
             <h2 className="font-oswald text-2xl font-bold italic tracking-tighter mb-4 md:mb-6">BUBASNEAKERS.</h2>
             <p className="text-concrete text-sm leading-relaxed max-w-xs">
-              Curated streetwear and authentic footwear for the modern collector. Based in Nairobi, shipping worldwide.
+              Curated streetwear and authentic footwear for the modern collector. Premium sneaker seller based in Kenya.
             </p>
           </div>
 
@@ -35,9 +35,10 @@ export default function Footer() {
             <h4 className="font-bold text-xs uppercase tracking-widest mb-4 md:mb-6">Support</h4>
             <ul className="space-y-3 md:space-y-4 text-sm text-concrete">
               <li><Link href="/account" className="hover:text-black transition-colors">My Account</Link></li>
-              <li><Link href="#" className="hover:text-black transition-colors">Shipping</Link></li>
-              <li><Link href="#" className="hover:text-black transition-colors">Returns</Link></li>
-              <li><Link href="#" className="hover:text-black transition-colors">FAQ</Link></li>
+              <li><Link href="/policies#shipping" className="hover:text-black transition-colors">Shipping</Link></li>
+              <li><Link href="/policies#returns" className="hover:text-black transition-colors">Returns</Link></li>
+              <li><Link href="/policies#faq" className="hover:text-black transition-colors">FAQ</Link></li>
+              <li><Link href="/about" className="hover:text-black transition-colors">About Us</Link></li>
             </ul>
           </div>
 
@@ -58,8 +59,8 @@ export default function Footer() {
             © 2025 BubaSneakers Inc.
           </p>
           <div className="flex gap-6 text-[10px] text-concrete uppercase tracking-widest">
-            <Link href="#" className="hover:text-black">Privacy</Link>
-            <Link href="#" className="hover:text-black">Terms</Link>
+            <Link href="/policies" className="hover:text-black">Privacy</Link>
+            <Link href="/policies" className="hover:text-black">Terms</Link>
           </div>
         </div>
 

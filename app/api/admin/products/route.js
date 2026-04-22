@@ -1,6 +1,9 @@
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
+import mongoose from "mongoose";
 
 // Helper to force input into a clean Array of Strings
 const sanitizeImages = (input) => {
@@ -36,6 +39,24 @@ const sanitizeImages = (input) => {
 
 export async function GET(request) {
   try {
+    // 🔒 Admin Auth Guard
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // Defensive fallback: if role is not in JWT (stale session), check DB
+    let isAdmin = session.user?.role === 'admin';
+    if (!isAdmin) {
+      await connectToDatabase();
+      const userDoc = await mongoose.models.User.findOne({ email: session.user.email });
+      if (userDoc?.role === 'admin') isAdmin = true;
+    }
+    
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
     await connectToDatabase();
     const products = await Product.find({}).sort({ createdAt: -1 });
     return NextResponse.json(products);
@@ -46,10 +67,16 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    // 🔒 Admin Auth Guard
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     console.log("📦 RAW BODY:", body); // Debugging
 
-    const { name, brand, price, category, gender, images, description, storyLabel, curatorNote } = body;
+    const { name, brand, price, category, gender, images, description, storyLabel, curatorNote, sizes } = body;
 
     // 1. Validation
     if (!name || !brand || !price) {
@@ -84,12 +111,7 @@ export async function POST(request) {
       isFeatured: true,
       storyLabel: storyLabel || "Just Dropped",
       curatorNote: curatorNote || "Fresh heat for the streets.",
-      sizes: [
-        { size: 8, stock: 10 },
-        { size: 9, stock: 10 },
-        { size: 10, stock: 10 },
-        { size: 11, stock: 10 },
-      ]
+      sizes: sizes || []
     });
 
     return NextResponse.json({ message: "Product Created", productId: newProduct._id }, { status: 201 });

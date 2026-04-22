@@ -1,16 +1,19 @@
 import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 // import { getServerSession } from "next-auth"; // Uncomment for production security
 
 export async function DELETE(request, { params }) {
   try {
-    // 1. Security Check (Recommended for production)
+    // 🔒 Admin Auth Guard
     const session = await getServerSession(authOptions);
-    if (session?.user?.role !== 'admin') return NextResponse.json({}, { status: 403 });
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
-    const { id } = await params; // Next.js 15 await fix
-
+    const { id } = await params;
     await connectToDatabase();
 
     // 2. Delete
@@ -28,6 +31,12 @@ export async function DELETE(request, { params }) {
 
 export async function PATCH(request, { params }) {
     try {
+      // 🔒 Admin Auth Guard
+      const session = await getServerSession(authOptions);
+      if (!session || session.user?.role !== 'admin') {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      }
+
       const { id } = await params;
       const body = await request.json();
   
@@ -48,6 +57,12 @@ export async function PATCH(request, { params }) {
   
 export async function GET(request, { params }) {
   try {
+    // 🔒 Admin Auth Guard
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'admin') {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     await connectToDatabase();
     const product = await Product.findById(id);

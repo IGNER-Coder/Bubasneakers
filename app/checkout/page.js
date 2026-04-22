@@ -118,7 +118,7 @@ export default function CheckoutPage() {
              </div>
              <span className="font-oswald text-xl font-bold tracking-tighter">CHECKOUT</span>
           </Link>
-          <Link href="/" className="text-sm font-bold text-concrete hover:text-black flex items-center gap-1">
+          <Link href="/shop" className="text-sm font-bold text-concrete hover:text-black flex items-center gap-1">
             <ChevronLeft className="w-4 h-4" /> Continue Shopping
           </Link>
         </div>
@@ -235,7 +235,7 @@ export default function CheckoutPage() {
                           <h4 className="font-bold text-sm line-clamp-2">{item.name}</h4>
                           <p className="text-xs text-concrete">Size: {item.size}</p>
                         </div>
-                        <p className="font-bold text-sm">${item.price * item.quantity}</p>
+                        <p className="font-bold text-sm">KES {(item.price * item.quantity).toLocaleString()}</p>
                       </div>
                     ))
                   )}

@@ -59,7 +59,7 @@ export function CartProvider({ children }) {
     if (!amountInKES && amountInKES !== 0) return "";
     
     if (currency === "KES") {
-      return `KES ${amountInKES.toLocaleString()}`;
+      return `Ksh ${amountInKES.toLocaleString()}`;
     } else {
       // Convert KES -> USD using real-time rate
       const usdAmount = amountInKES / exchangeRate;

@@ -23,7 +23,8 @@ export default function AddProductPage() {
     images: [],
     description: "",
     storyLabel: "", 
-    curatorNote: ""
+    curatorNote: "",
+    sizes: [{ size: 40, stock: 1 }, { size: 41, stock: 1 }, { size: 42, stock: 1 }, { size: 43, stock: 1 }]
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -41,6 +42,24 @@ export default function AddProductPage() {
 
   const handleImagesChange = (newImages) => {
     setFormData({ ...formData, images: newImages });
+  };
+
+  const handleAddSize = () => {
+    setFormData(prev => ({
+       ...prev,
+       sizes: [...prev.sizes, { size: '', stock: 1 }]
+    }));
+  };
+
+  const handleSizeChange = (index, field, value) => {
+    const newSizes = [...formData.sizes];
+    newSizes[index][field] = field === 'stock' ? parseInt(value) || 0 : value;
+    setFormData({ ...formData, sizes: newSizes });
+  };
+
+  const handleRemoveSize = (index) => {
+    const newSizes = formData.sizes.filter((_, i) => i !== index);
+    setFormData({ ...formData, sizes: newSizes });
   };
 
   // 🆕 UPDATED DEBUGGING HANDLER
@@ -90,6 +109,12 @@ export default function AddProductPage() {
     // Basic validation to ensure at least one image exists
     if (formData.images.length === 0) {
         alert("Please upload at least one image.");
+        setLoading(false);
+        return;
+    }
+
+    if (!formData.sizes || formData.sizes.length === 0) {
+        alert("Please add at least one size.");
         setLoading(false);
         return;
     }
@@ -217,6 +242,34 @@ export default function AddProductPage() {
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-electric-blue">Curator Note</label>
                 <input name="curatorNote" value={formData.curatorNote} type="text" placeholder="e.g. A timeless classic." onChange={handleChange} className="w-full p-4 bg-blue-50 border border-transparent rounded-lg focus:border-electric-blue transition-colors" />
+              </div>
+            </div>
+
+            {/* SIZES MATRIX */}
+            <div className="pt-4 border-t border-neutral-100 space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-black">Inventory (Sizes & Stock)</label>
+                <button type="button" onClick={handleAddSize} className="text-xs font-bold uppercase tracking-wider text-electric-blue hover:text-blue-700">
+                  + Add Size
+                </button>
+              </div>
+              <div className="space-y-3">
+                {formData.sizes.map((sizeObj, index) => (
+                  <div key={index} className="flex gap-4 items-center">
+                     <div className="flex-1 space-y-1">
+                        <span className="text-[10px] uppercase font-bold text-concrete">Euro Size</span>
+                        <input type="text" value={sizeObj.size} onChange={(e) => handleSizeChange(index, 'size', e.target.value)} required placeholder="e.g. 42" className="w-full p-3 bg-neutral-50 rounded-lg border border-transparent focus:border-black focus:bg-white" />
+                     </div>
+                     <div className="flex-1 space-y-1">
+                        <span className="text-[10px] uppercase font-bold text-concrete">Quantity in Stock</span>
+                        <input type="number" min="0" value={sizeObj.stock} onChange={(e) => handleSizeChange(index, 'stock', e.target.value)} required className="w-full p-3 bg-neutral-50 rounded-lg border border-transparent focus:border-black focus:bg-white" />
+                     </div>
+                     <div className="pt-5">
+                       <button type="button" onClick={() => handleRemoveSize(index)} className="text-red-400 hover:text-red-600 p-2 font-bold text-xl">&times;</button>
+                     </div>
+                  </div>
+                ))}
+                {formData.sizes.length === 0 && <p className="text-sm text-concrete italic">No sizes added. Product will be marked as Out of Stock.</p>}
               </div>
             </div>
 

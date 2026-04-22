@@ -92,9 +92,14 @@ export default function ImportPage() {
           </div>
 
           {/* Template Download Link */}
-          <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-800">
-             <p className="font-bold mb-1">💡 Required CSV Columns:</p>
-             <p className="font-mono text-xs">name, brand, price, category, gender, description, images</p>
+          <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-100 text-sm text-blue-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+             <div>
+               <p className="font-bold mb-1">💡 Required CSV Columns:</p>
+               <p className="font-mono text-xs">name, brand, price, category, gender, description, images</p>
+             </div>
+             <a href="/template.csv" download className="bg-white text-blue-700 px-4 py-2 rounded-lg font-bold border border-blue-200 hover:bg-blue-100 transition-colors shrink-0">
+               Download Template
+             </a>
           </div>
 
           <label className={`border-2 border-dashed border-neutral-300 rounded-xl p-12 flex flex-col items-center justify-center cursor-pointer hover:border-black hover:bg-neutral-50 transition-all group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>

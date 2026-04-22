@@ -57,11 +57,9 @@ export default function Navbar() {
   if (pathname && pathname.startsWith("/checkout")) return null;
 
   // --- ACTIVE LINK HELPER ---
-  const isActive = (tag, gender) => {
+  const isActive = (type, value) => {
     if (!searchParams) return false;
-    if (gender) return searchParams.get("gender") === gender;
-    if (tag) return searchParams.get("tag") === tag;
-    return false;
+    return searchParams.get(type) === value;
   };
 
   const NavLink = ({ href, label, active }) => (
@@ -93,18 +91,14 @@ export default function Navbar() {
               </span>
             </Link>
 
-            {/* 2. DESKTOP NAV */}
-            <div className="hidden md:flex items-center space-x-8 text-sm uppercase tracking-wide font-medium">
-              <NavLink href="/shop?tag=new" label="New Arrivals" active={isActive("new")} />
-              <NavLink href="/shop?gender=men" label="Men" active={isActive(null, "men")} />
-              <NavLink href="/shop?gender=women" label="Women" active={isActive(null, "women")} />
-              <NavLink href="/shop?tag=kids" label="Kids" active={isActive("kids")} />
-              <Link 
-                href="/shop?tag=sale" 
-                className={`text-electric-blue font-bold hover:text-blue-700 transition-colors ${isActive("sale") ? 'underline decoration-2 underline-offset-4' : ''}`}
-              >
-                Archive
-              </Link>
+            {/* 2. DESKTOP NAV (MINIMALIST) */}
+            <div className="hidden md:flex items-center space-x-6 lg:space-x-8 text-[11px] lg:text-xs uppercase tracking-widest font-bold">
+              <NavLink href="/shop" label="Shop All" active={pathname === "/shop" && (!searchParams || searchParams.toString() === "")} />
+              <span className="text-neutral-300">|</span>
+              <NavLink href="/shop?gender=men" label="Men" active={isActive("gender", "men")} />
+              <NavLink href="/shop?gender=women" label="Women" active={isActive("gender", "women")} />
+              <span className="text-neutral-300">|</span>
+              <NavLink href="/shop?tag=sale" label="Archive Sale" active={isActive("tag", "sale")} />
             </div>
 
             {/* 3. ICONS */}
@@ -197,8 +191,17 @@ export default function Navbar() {
             
             {/* SEARCH BAR */}
             <div className="relative mb-8">
-                <input type="text" placeholder="Search sneakers..." className="w-full bg-neutral-100 p-4 rounded-xl text-lg font-sans font-medium pr-12 focus:outline-none focus:ring-2 focus:ring-black/5" />
-                <Search className="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-concrete" />
+                <input 
+                  type="text" 
+                  placeholder="Search sneakers..." 
+                  className="w-full bg-neutral-100 p-4 rounded-xl text-lg font-sans font-medium pr-12 focus:outline-none focus:ring-2 focus:ring-electric-blue/50 cursor-pointer" 
+                  readOnly
+                  onClick={() => {
+                    setIsMobileOpen(false);
+                    setIsSearchOpen(true);
+                  }}
+                />
+                <Search className="w-6 h-6 absolute right-4 top-1/2 -translate-y-1/2 text-concrete pointer-events-none" />
             </div>
 
             {/* Currency Toggle (Mobile Version) */}
@@ -207,26 +210,28 @@ export default function Navbar() {
                 <CurrencyToggle />
             </div>
 
-            {/* BIG LINKS */}
-            <nav className="flex flex-col space-y-6">
-                {[
-                    { href: "/shop?tag=new", label: "New Arrivals" },
-                    { href: "/shop?gender=men", label: "Men" },
-                    { href: "/shop?gender=women", label: "Women" },
-                    { href: "/shop?tag=kids", label: "Kids" },
-                    { href: "/shop?tag=sale", label: "Archive", color: "text-electric-blue" }
-                ].map((link, idx) => (
-                    <Link 
-                        key={link.href} 
-                        href={link.href} 
-                        onClick={() => setIsMobileOpen(false)}
-                        className={`font-oswald text-4xl font-bold uppercase tracking-wide hover:pl-4 transition-all duration-300 ${link.color || 'text-black'}`}
-                        style={{ opacity: 0, animation: isMobileOpen ? `slide-in-right 0.4s ease-out forwards ${idx * 0.1}s` : 'none' }}
-                    >
-                        {link.label}
-                    </Link>
-                ))}
-            </nav>
+            {/* BIG LINKS (MINIMALIST) */}
+            <div className="space-y-8">
+              <nav className="flex flex-col space-y-6">
+                  <span className="text-xs font-bold text-concrete uppercase tracking-widest border-b border-neutral-100 pb-2 mb-2 block">Collections</span>
+                  {[
+                      { href: "/shop", label: "Shop All" },
+                      { href: "/shop?gender=men", label: "Men" },
+                      { href: "/shop?gender=women", label: "Women" },
+                      { href: "/shop?tag=sale", label: "Archive Sale", color: "text-red-500" }
+                  ].map((link, idx) => (
+                      <Link 
+                          key={link.href} 
+                          href={link.href} 
+                          onClick={() => setIsMobileOpen(false)}
+                          className={`font-oswald text-3xl font-bold uppercase tracking-wide hover:pl-4 transition-all duration-300 ${link.color || 'text-black'}`}
+                          style={{ opacity: 0, animation: isMobileOpen ? `slide-in-right 0.4s ease-out forwards ${idx * 0.1}s` : 'none' }}
+                      >
+                          {link.label}
+                      </Link>
+                  ))}
+              </nav>
+            </div>
 
             <hr className="my-10 border-neutral-100" />
 
@@ -366,7 +371,7 @@ const SearchModal = ({ isOpen, onClose }) => {
                 <div className="flex-1">
                   <p className="font-semibold text-black text-base">{product.name}</p>
                   <p className="text-sm text-neutral-600 mt-0.5">{product.brand}</p>
-                  <p className="text-base font-bold text-black mt-1">${product.price}</p>
+                  <p className="text-base font-bold text-black mt-1">Ksh {product.price?.toLocaleString()}</p>
                 </div>
               </Link>
             ))}

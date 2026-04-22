@@ -1,14 +1,17 @@
 import connectToDatabase from "@/lib/db";
 import User from "@/models/User";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
-// GET: Fetch current user details
+// GET: Fetch current user's profile details
 export async function GET() {
-  const session = { user: { email: 'test@gmail.com' } }; // ⚠️ MOCK SESSION: Replace with getServerSession(authOptions) in prod
+  const session = await getServerSession(authOptions);
 
-  if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  if (!session || !session.user?.email) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   await connectToDatabase();
   const user = await User.findOne({ email: session.user.email }).select("-password");
@@ -18,18 +21,24 @@ export async function GET() {
   return NextResponse.json(user);
 }
 
-// PATCH: Update details or password
+// PATCH: Update profile details or change password
 export async function PATCH(request) {
   try {
-    const session = { user: { email: 'test@gmail.com' } }; // ⚠️ MOCK SESSION: Replace with getServerSession(authOptions)
+    const session = await getServerSession(authOptions);
 
-    if (!session) return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     const body = await request.json();
     const { name, phone, address, city, currentPassword, newPassword } = body;
 
     await connectToDatabase();
     const user = await User.findOne({ email: session.user.email }).select("+password");
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
+    }
 
     // 1. Handle Password Change (Optional)
     if (currentPassword && newPassword) {
@@ -40,18 +49,11 @@ export async function PATCH(request) {
       user.password = await bcrypt.hash(newPassword, 10);
     }
 
-    // 2. Update Basic Info
+    // 2. Update Basic Info (fields are defined on the User schema)
     if (name) user.name = name;
-    // We need to add these fields to the User Schema if they don't exist, 
-    // or store them in a 'profile' object. For now, we'll assume extended schema or flexible usage.
-    // Ideally, update models/User.js to include: phone, address, city.
-    
-    // Saving generic fields to the root or a profile object
-    // For this MVP, we will save them if the schema supports strict: false or if we added them.
-    // Let's assume we treat them as part of the user document.
-    user.phone = phone;
-    user.address = address;
-    user.city = city;
+    if (phone !== undefined) user.phone = phone;
+    if (address !== undefined) user.address = address;
+    if (city !== undefined) user.city = city;
 
     await user.save();
 

@@ -2,8 +2,29 @@ import connectToDatabase from "@/lib/db";
 import Product from "@/models/Product";
 import { NextResponse } from "next/server";
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/authOptions";
+import mongoose from "mongoose";
+
 export async function POST(request) {
   try {
+    // 🔒 Admin Auth Guard
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    // Defensive fallback: if role is not in JWT (stale session), check DB
+    let isAdmin = session.user?.role === 'admin';
+    if (!isAdmin) {
+      await connectToDatabase();
+      const userDoc = await mongoose.models.User.findOne({ email: session.user.email });
+      if (userDoc?.role === 'admin') isAdmin = true;
+    }
+    
+    if (!isAdmin) {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
     const body = await request.json();
     const { products } = body; // Expecting an array of product objects
 

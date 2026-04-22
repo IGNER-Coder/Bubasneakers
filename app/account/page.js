@@ -95,7 +95,7 @@ export default function AccountPage() {
         </div>
         
         <div className="mt-12 text-center text-concrete">
-            <Link href="/" className="font-bold hover:underline">Continue Shopping</Link>
+            <Link href="/shop" className="font-bold hover:underline">Continue Shopping</Link>
         </div>
       </div>
     </div>

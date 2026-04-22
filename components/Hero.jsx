@@ -1,29 +1,8 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-
-// ----------------------------------------------------------------------
-// ⚠️ FOR VERCEL DEPLOYMENT:
-// 1. Uncomment the real imports below:
-// import Link from "next/link"; 
-// import Image from "next/image";
-//
-// 2. DELETE the "PREVIEW MOCKS" section below.
-// ----------------------------------------------------------------------
-
-// --- PREVIEW MOCKS (DELETE FOR VERCEL) ---
-const Link = ({ href, children, className, ...props }) => (
-  <a href={href} className={className} {...props}>{children}</a>
-);
-const Image = ({ src, alt, className, fill, style, unoptimized }) => (
-  <img 
-    src={src} 
-    alt={alt} 
-    className={className}
-    style={{ ...style, position: fill ? 'absolute' : 'static', height: '100%', width: '100%', inset: 0, objectFit: 'cover' }} 
-  />
-);
-// ----------------------------------------
+import Link from "next/link";
+import Image from "next/image";
 
 export default function Hero() {
   return (
